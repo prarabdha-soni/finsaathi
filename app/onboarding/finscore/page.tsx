@@ -39,10 +39,10 @@ export default function FinScoreRevealPage() {
 
   return (
     <div
-      className="flex-1 flex flex-col"
+      className="flex-1 flex flex-col min-h-0"
       style={{ background: "var(--bg-app)" }}
     >
-      <div className="flex-1 overflow-y-auto pb-4">
+      <div className="flex-1 overflow-y-auto min-h-0 pb-4">
 
         {/* ── Saffron hero ─────────────────────────────── */}
         <div
@@ -195,10 +195,11 @@ export default function FinScoreRevealPage() {
 
       {/* ── CTA ──────────────────────────────────────────── */}
       <div
-        className="shrink-0 px-5 pt-3 pb-8"
+        className="shrink-0 px-5 pt-3"
         style={{
           background: "rgba(250,245,235,0.96)",
           backdropFilter: "blur(12px)",
+          WebkitBackdropFilter: "blur(12px)",
           borderTop: "1px solid var(--hairline)",
           paddingBottom: "max(32px, env(safe-area-inset-bottom))",
         }}
