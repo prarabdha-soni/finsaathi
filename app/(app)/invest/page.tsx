@@ -76,15 +76,30 @@ export default function InvestPage() {
       <div className="px-[18px] flex flex-col gap-3">
 
         {/* Portfolio hero ──────────────────────── */}
-        <FSCard tone="ink" pad={16}>
-          <div className="flex justify-between items-start">
+        <div
+          className="rounded-[20px] p-4 relative overflow-hidden"
+          style={{
+            background: "linear-gradient(135deg, #faf0db 0%, #fbe7cf 55%, #f5d4a0 100%)",
+            border: "1.5px solid rgba(217,120,58,0.22)",
+            boxShadow: "0 2px 20px -6px rgba(168,85,34,0.18)",
+          }}
+        >
+          {/* Decorative glow */}
+          <div
+            className="absolute -right-6 -bottom-6 w-36 h-36 rounded-full pointer-events-none"
+            style={{ background: "radial-gradient(circle, rgba(217,120,58,0.2) 0%, transparent 70%)" }}
+          />
+          <div className="flex justify-between items-start relative">
             <div>
-              <div className="eyebrow mb-1" style={{ color: "rgba(255,248,239,0.6)" }}>
+              <div
+                className="text-[10px] font-bold tracking-[0.12em] uppercase mb-1"
+                style={{ color: "var(--saffron-deep)" }}
+              >
                 Total portfolio value
               </div>
               <div
-                className="tnum text-[38px] font-bold leading-none"
-                style={{ fontFamily: "var(--font-display)", color: "#fff8ef" }}
+                className="tnum text-[36px] font-medium leading-none"
+                style={{ fontFamily: "var(--font-display)", color: "var(--ink)" }}
               >
                 {formatINR(rahul.portfolioValue)}
               </div>
@@ -101,12 +116,15 @@ export default function InvestPage() {
               </div>
             </div>
             <div className="text-right">
-              <div className="text-[11px]" style={{ color: "rgba(255,248,239,0.55)" }}>
+              <div
+                className="text-[11px] font-semibold"
+                style={{ color: "var(--saffron-deep)", opacity: 0.7 }}
+              >
                 SIPs / mo
               </div>
               <div
                 className="tnum text-[18px] font-bold mt-0.5"
-                style={{ color: "#fff8ef" }}
+                style={{ fontFamily: "var(--font-display)", color: "var(--ink)" }}
               >
                 {formatINR(rahul.sipPerMonth)}
               </div>
@@ -114,27 +132,27 @@ export default function InvestPage() {
           </div>
 
           {/* Sparkline */}
-          <svg viewBox="0 0 280 65" className="w-full mt-3" style={{ height: 60 }}>
+          <svg viewBox="0 0 280 65" className="w-full mt-3 relative" style={{ height: 60 }}>
             <defs>
               <linearGradient id="portGrad" x1="0" x2="0" y1="0" y2="1">
-                <stop offset="0%"   stopColor="rgba(217,120,58,0.5)" />
-                <stop offset="100%" stopColor="rgba(217,120,58,0)" />
+                <stop offset="0%"   stopColor="rgba(168,85,34,0.35)" />
+                <stop offset="100%" stopColor="rgba(168,85,34,0)" />
               </linearGradient>
             </defs>
             <path d={sparkArea} fill="url(#portGrad)" />
-            <path d={sparkPath} stroke="var(--saffron)" strokeWidth="2"
+            <path d={sparkPath} stroke="var(--saffron-deep)" strokeWidth="2"
               fill="none" strokeLinecap="round" strokeLinejoin="round" />
             {PORT_SPARK.map((p, i) => (
-              <circle key={i} cx={p.x} cy={sy(p.y)} r="2.5" fill="var(--saffron)" />
+              <circle key={i} cx={p.x} cy={sy(p.y)} r="2.5" fill="var(--saffron-deep)" />
             ))}
             {SPARK_MONTHS.map((m, i) => (
               <text key={i} x={i * 48} y="64" fontSize="9"
-                fill="rgba(255,248,239,0.4)" fontFamily="var(--font-ui)" textAnchor="middle">
+                fill="var(--ink-3)" fontFamily="var(--font-ui)" textAnchor="middle">
                 {m}
               </text>
             ))}
           </svg>
-        </FSCard>
+        </div>
 
         {/* Diversification warning ─────────────── */}
         <div
@@ -181,8 +199,51 @@ export default function InvestPage() {
           </div>
         </FSCard>
 
+        {/* Goals progress ──────────────────────── */}
+        <div className="eyebrow px-1 pt-2 pb-0.5">Goals</div>
+        {rahul.goals.map((g) => (
+          <FSCard key={g.id} tone="white" pad={14}>
+            <div className="flex justify-between items-start mb-2">
+              <div>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[15px]">{g.icon}</span>
+                  <span className="text-[13px] font-bold text-ink">{g.name}</span>
+                </div>
+                <div className="text-[11px] text-muted mt-0.5">
+                  By {g.by} · {formatINR(g.monthly)}/mo
+                </div>
+              </div>
+              <Pill
+                tone={g.tone === "bad" ? "rose" : g.tone}
+                size="sm"
+              >
+                {g.status}
+              </Pill>
+            </div>
+            <div
+              className="h-[6px] rounded-full overflow-hidden"
+              style={{ background: "var(--surface-3)" }}
+            >
+              <div
+                className="h-full rounded-full transition-all duration-700"
+                style={{
+                  width: `${Math.min(100, (g.have / g.target) * 100)}%`,
+                  background:
+                    g.tone === "good" ? "var(--good)"
+                    : g.tone === "amber" ? "var(--caution)"
+                    : "var(--bad)",
+                }}
+              />
+            </div>
+            <div className="flex justify-between mt-1.5 text-[10px] text-muted">
+              <span>{formatINR(g.have)} saved</span>
+              <span>{formatINR(g.target)} target</span>
+            </div>
+          </FSCard>
+        ))}
+
         {/* SIP cards ───────────────────────────── */}
-        <div className="eyebrow px-1 pt-1 pb-0.5">Your SIPs</div>
+        <div className="eyebrow px-1 pt-2 pb-0.5">Your SIPs</div>
 
         {SIPS.map((sip) => (
           <Link key={sip.id} href={`/invest/sip/${sip.id}`}>
@@ -230,49 +291,6 @@ export default function InvestPage() {
               </div>
             </FSCard>
           </Link>
-        ))}
-
-        {/* Goals progress ──────────────────────── */}
-        <div className="eyebrow px-1 pt-2 pb-0.5">Goals</div>
-        {rahul.goals.map((g) => (
-          <FSCard key={g.id} tone="white" pad={14}>
-            <div className="flex justify-between items-start mb-2">
-              <div>
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[15px]">{g.icon}</span>
-                  <span className="text-[13px] font-bold text-ink">{g.name}</span>
-                </div>
-                <div className="text-[11px] text-muted mt-0.5">
-                  By {g.by} · {formatINR(g.monthly)}/mo
-                </div>
-              </div>
-              <Pill
-                tone={g.tone === "bad" ? "rose" : g.tone}
-                size="sm"
-              >
-                {g.status}
-              </Pill>
-            </div>
-            <div
-              className="h-[6px] rounded-full overflow-hidden"
-              style={{ background: "var(--surface-3)" }}
-            >
-              <div
-                className="h-full rounded-full transition-all duration-700"
-                style={{
-                  width: `${Math.min(100, (g.have / g.target) * 100)}%`,
-                  background:
-                    g.tone === "good" ? "var(--good)"
-                    : g.tone === "amber" ? "var(--caution)"
-                    : "var(--bad)",
-                }}
-              />
-            </div>
-            <div className="flex justify-between mt-1.5 text-[10px] text-muted">
-              <span>{formatINR(g.have)} saved</span>
-              <span>{formatINR(g.target)} target</span>
-            </div>
-          </FSCard>
         ))}
       </div>
     </div>

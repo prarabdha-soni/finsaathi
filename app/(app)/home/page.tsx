@@ -78,17 +78,15 @@ export default function HomePage() {
                   FinScore · this month
                 </div>
 
-                {/* Score + delta */}
-                <div className="flex items-baseline gap-2 mt-1">
+                {/* Delta + grade */}
+                <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                  <Pill tone="good" size="sm">+{rahul.finScoreDelta} vs Apr</Pill>
                   <span
-                    className="tnum text-[38px] font-medium leading-none"
-                    style={{ fontFamily: "var(--font-display)", color: "var(--ink)" }}
+                    className="text-[12px] font-semibold"
+                    style={{ color: "var(--ink-2)" }}
                   >
-                    {rahul.finScore}
+                    {rahul.finScoreGrade}
                   </span>
-                  <Pill tone="good" size="sm">
-                    +{rahul.finScoreDelta} vs Apr
-                  </Pill>
                 </div>
 
                 {/* Sub-line */}
@@ -110,6 +108,63 @@ export default function HomePage() {
             </div>
           </div>
         </Link>
+
+        {/* Most urgent action — DO THIS NEXT (above Saathi insights) */}
+        <div>
+          <div className="flex items-baseline justify-between mb-2.5 px-0.5">
+            <span className="text-[11px] font-bold tracking-[0.1em] uppercase" style={{ color: "var(--ink-3)" }}>
+              Do this next
+            </span>
+            <Link href="/insurance" className="text-[12px] font-bold" style={{ color: "var(--saffron-deep)" }}>
+              See all 3
+            </Link>
+          </div>
+
+          <FSCard tone="saffron" pad={16} className="flex gap-3.5 items-start">
+            <div
+              className="w-11 h-11 rounded-[14px] flex items-center justify-center shrink-0"
+              style={{ background: "var(--saffron)", color: "#fff8ef" }}
+            >
+              <Shield size={22} strokeWidth={2} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-[11px] font-extrabold tracking-[0.08em] uppercase" style={{ color: "var(--saffron-deep)" }}>
+                Most urgent
+              </div>
+              <p
+                className="text-[17px] font-medium mt-1 leading-[1.25]"
+                style={{ fontFamily: "var(--font-display)", color: "var(--saffron-ink)" }}
+              >
+                You need{" "}
+                <em className="italic" style={{ color: "var(--saffron-deep)" }}>
+                  {formatINR(rahul.recommendedTermCover, { abbreviate: true })}
+                </em>{" "}
+                term cover. You have{" "}
+                <em className="italic">zero</em>.
+              </p>
+              <p className="text-[12px] mt-1.5 leading-[1.4]" style={{ color: "var(--saffron-ink)", opacity: 0.8 }}>
+                Wife, child & home loan all sit unprotected. Est.{" "}
+                <strong>{formatINR(rahul.termPremiumEstimate)}/mo</strong>.
+              </p>
+              <div className="flex gap-2 mt-3">
+                <Link
+                  href="/insurance/plans"
+                  className="inline-flex items-center px-3.5 h-9 rounded-[12px] text-[13px] font-bold"
+                  style={{ background: "var(--saffron-ink)", color: "#fbe7cf" }}
+                >
+                  See 3 best-fit plans
+                </Link>
+                <Link
+                  href="/insurance"
+                  className="inline-flex items-center px-3 h-9 rounded-[12px] text-[13px] font-bold"
+                  style={{ color: "var(--saffron-deep)" }}
+                >
+                  Why this?
+                </Link>
+              </div>
+            </div>
+          </FSCard>
+        </div>
 
         {/* SAATHI INSIGHTS — horizontal scroll cards */}
         <div>
@@ -381,63 +436,6 @@ export default function HomePage() {
               </span>
             </Link>
           ))}
-        </div>
-
-        {/* Most urgent action */}
-        <div>
-          <div className="flex items-baseline justify-between mb-2.5 px-0.5">
-            <span className="text-[11px] font-bold tracking-[0.1em] uppercase" style={{ color: "var(--ink-3)" }}>
-              Do this next
-            </span>
-            <Link href="/insurance" className="text-[12px] font-bold" style={{ color: "var(--saffron-deep)" }}>
-              See all 3
-            </Link>
-          </div>
-
-          <FSCard tone="saffron" pad={16} className="flex gap-3.5 items-start">
-            <div
-              className="w-11 h-11 rounded-[14px] flex items-center justify-center shrink-0"
-              style={{ background: "var(--saffron)", color: "#fff8ef" }}
-            >
-              <Shield size={22} strokeWidth={2} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-[11px] font-extrabold tracking-[0.08em] uppercase" style={{ color: "var(--saffron-deep)" }}>
-                Most urgent
-              </div>
-              <p
-                className="text-[17px] font-medium mt-1 leading-[1.25]"
-                style={{ fontFamily: "var(--font-display)", color: "var(--saffron-ink)" }}
-              >
-                You need{" "}
-                <em className="italic" style={{ color: "var(--saffron-deep)" }}>
-                  {formatINR(rahul.recommendedTermCover, { abbreviate: true })}
-                </em>{" "}
-                term cover. You have{" "}
-                <em className="italic">zero</em>.
-              </p>
-              <p className="text-[12px] mt-1.5 leading-[1.4]" style={{ color: "var(--saffron-ink)", opacity: 0.8 }}>
-                Wife, child & home loan all sit unprotected. Est.{" "}
-                <strong>{formatINR(rahul.termPremiumEstimate)}/mo</strong>.
-              </p>
-              <div className="flex gap-2 mt-3">
-                <Link
-                  href="/insurance/plans"
-                  className="inline-flex items-center px-3.5 h-9 rounded-[12px] text-[13px] font-bold"
-                  style={{ background: "var(--saffron-ink)", color: "#fbe7cf" }}
-                >
-                  See 3 best-fit plans
-                </Link>
-                <Link
-                  href="/insurance"
-                  className="inline-flex items-center px-3 h-9 rounded-[12px] text-[13px] font-bold"
-                  style={{ color: "var(--saffron-deep)" }}
-                >
-                  Why this?
-                </Link>
-              </div>
-            </div>
-          </FSCard>
         </div>
 
         {/* Money snapshot 2×2 */}
