@@ -71,7 +71,7 @@ export function RingGauge({
   const textColor = dark ? "#fff8ef" : "var(--ink)";
   const subtextColor = dark ? "rgba(251,231,207,0.8)" : "var(--ink-3)";
   const trackColor = dark ? "rgba(255,255,255,0.1)" : "var(--surface-3)";
-  const eyebrowColor = dark ? "var(--saffron-soft)" : "var(--muted)";
+  const eyebrowColor = dark ? "var(--saffron-soft)" : "var(--ink-3)";
 
   return (
     <div

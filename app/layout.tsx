@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Newsreader, Manrope, Mukta, JetBrains_Mono } from "next/font/google";
+import { Newsreader, Manrope, JetBrains_Mono, Sora } from "next/font/google";
 import "./globals.css";
 
 const newsreader = Newsreader({
@@ -17,17 +17,17 @@ const manrope = Manrope({
   display: "swap",
 });
 
-const mukta = Mukta({
-  variable: "--font-mukta",
-  subsets: ["devanagari", "latin"],
-  weight: ["400", "500", "600", "700"],
-  display: "swap",
-});
-
 const jetbrains = JetBrains_Mono({
   variable: "--font-jetbrains",
   subsets: ["latin"],
   weight: ["500"],
+  display: "swap",
+});
+
+const sora = Sora({
+  variable: "--font-sora",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
   display: "swap",
 });
 
@@ -45,7 +45,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${newsreader.variable} ${manrope.variable} ${mukta.variable} ${jetbrains.variable} h-full`}
+      className={`${newsreader.variable} ${manrope.variable} ${jetbrains.variable} ${sora.variable} h-full`}
     >
       <body className="min-h-full">{children}</body>
     </html>

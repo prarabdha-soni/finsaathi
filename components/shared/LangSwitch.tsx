@@ -22,10 +22,10 @@ export function LangSwitch({ className }: LangSwitchProps) {
       )}
     >
       <Globe size={13} strokeWidth={2} />
-      <span>{lang}</span>
+      <span>{lang === "EN" ? "EN" : "HI"}</span>
       <span className="text-muted">·</span>
-      <span className="font-hindi font-semibold">
-        {lang === "EN" ? "हिंदी" : "EN"}
+      <span className="font-semibold">
+        {lang === "EN" ? "HI" : "EN"}
       </span>
     </button>
   );

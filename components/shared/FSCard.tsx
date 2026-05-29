@@ -9,7 +9,7 @@ const toneClasses: Record<CardTone, string> = {
   sand:    "bg-surface-3",
   saffron: "bg-tint-saffron",
   indigo:  "bg-tint-indigo",
-  ink:     "bg-ink",
+  ink:     "bg-surface-ink",
 };
 
 interface FSCardProps {

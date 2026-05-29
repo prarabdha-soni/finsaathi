@@ -61,7 +61,7 @@ export function BottomNav() {
             href={tab.href}
             className={cn(
               "flex flex-col items-center gap-1 px-3 py-1",
-              isActive ? "text-ink" : "text-muted",
+              isActive ? "text-ink" : "text-ink-3",
             )}
           >
             <Icon size={22} strokeWidth={isActive ? 2 : 1.6} />

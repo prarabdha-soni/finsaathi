@@ -39,6 +39,9 @@
   --caution:         #b58419;
   --bad:             #a94a3b;
 
+  /* Dark card surface — less harsh than --ink (#1c1812) */
+  --surface-ink:     #362a19;
+
   /* Shadows */
   --shadow-card:     0 1px 0 rgba(28,24,18,0.04), 0 4px 18px -8px rgba(28,24,18,0.12);
   --shadow-pop:      0 8px 32px -10px rgba(28,24,18,0.22);
@@ -81,8 +84,8 @@
   --color-ink:           var(--ink);
   --color-ink-2:         var(--ink-2);
   --color-ink-3:         var(--ink-3);
-  --color-muted:         var(--muted);
-  --color-muted-2:       var(--muted-2);
+  --color-muted:         var(--ink-3);   /* ink-3 = #6b5c4a · 4.8:1 on cream · --muted is overridden by shadcn */
+  --color-muted-2:       #8d8275;       /* softer secondary, still readable on white */
   --color-hairline:      var(--hairline);
   --color-hairline-2:    var(--hairline-2);
   --color-saffron:       var(--saffron);
@@ -96,6 +99,7 @@
   --color-good-deep:     var(--good-deep);
   --color-caution:       var(--caution);
   --color-bad:           var(--bad);
+  --color-surface-ink:   var(--surface-ink);
 
   /* shadcn compat */
   --color-background:        var(--background);
@@ -119,7 +123,6 @@
   /* Typography */
   --font-display:  var(--font-newsreader), 'Source Serif 4', Georgia, serif;
   --font-ui:       var(--font-manrope), 'DM Sans', system-ui, sans-serif;
-  --font-hindi:    var(--font-mukta), 'Hind', system-ui, sans-serif;
   --font-mono:     var(--font-jetbrains), ui-monospace, monospace;
   --font-sans:     var(--font-manrope), system-ui, sans-serif;
 
@@ -148,15 +151,14 @@ body {
 
 /* ── Typography helpers ───────────────────────────────────── */
 .font-display { font-family: var(--font-display) !important; }
-.font-hindi   { font-family: var(--font-hindi) !important; }
 
 .eyebrow {
   font-family: var(--font-ui);
   font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
+  font-weight: 700;
+  letter-spacing: 0.10em;
   text-transform: uppercase;
-  color: var(--muted);
+  color: var(--ink-3);
 }
 
 .tnum {
@@ -170,3 +172,30 @@ body {
 
 /* ── Safe-area padding ────────────────────────────────────── */
 .safe-bottom { padding-bottom: max(28px, env(safe-area-inset-bottom)); }
+
+/* ── Mobile phone container ──────────────────────────────── */
+.mobile-screen {
+  width: 100%;
+  max-width: 430px;
+  min-height: 100dvh;
+  background: var(--bg-app);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+@media (min-width: 640px) {
+  .mobile-screen {
+    min-height: unset;
+    height: 844px;
+    border-radius: 40px;
+    overflow: hidden;
+    box-shadow: 0 40px 120px -20px rgba(28,24,18,0.35), 0 0 0 1px rgba(28,24,18,0.08);
+  }
+}
+
+/* ── Missing tokens ──────────────────────────────────────── */
+:root {
+  --tint-bad: #fde8e4;
+}
