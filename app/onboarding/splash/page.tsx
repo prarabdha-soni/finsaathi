@@ -24,11 +24,8 @@ export default function SplashPage() {
         />
       </svg>
 
-      {/* ── Spacer — pushes text down ─────────────── */}
-      <div className="flex-1" />
-
       {/* ── Hero copy ─────────────────────────────── */}
-      <div className="px-8 pb-10">
+      <div className="px-8 pt-16 flex-1">
         <h1
           style={{
             fontFamily: "var(--font-display)",
@@ -48,7 +45,7 @@ export default function SplashPage() {
         </h1>
       </div>
 
-      {/* ── CTA ───────────────────────────────────── */}
+      {/* ── CTA — pinned to bottom ─────────────────── */}
       <div className="shrink-0 px-8 pb-12 flex flex-col gap-3">
         <Link
           href="/onboarding/questions?step=1"
