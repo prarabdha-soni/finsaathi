@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 const tabs = [
   { id: "home",   label: "Home",   icon: Home,          href: "/home" },
   { id: "saathi", label: "Saathi", icon: MessageCircle, href: "/saathi", highlight: true },
-  { id: "money",  label: "Money",  icon: Wallet,        href: "/invest" },
+  { id: "money",  label: "Money",  icon: Wallet,        href: "/money" },
   { id: "me",     label: "Me",     icon: User,          href: "/me" },
 ];
 

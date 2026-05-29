@@ -177,7 +177,8 @@ body {
 .mobile-screen {
   width: 100%;
   max-width: 430px;
-  min-height: 100dvh;
+  height: 100dvh;          /* fixed — keeps BottomNav always visible */
+  max-height: 100dvh;
   background: var(--bg-app);
   display: flex;
   flex-direction: column;
