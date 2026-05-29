@@ -1,3 +1,4 @@
+"use client";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, TrendingDown, TrendingUp } from "lucide-react";
 import { AppHeader } from "@/components/chrome/AppHeader";
@@ -5,6 +6,7 @@ import { IconBtn }   from "@/components/shared/IconBtn";
 import { FSCard }    from "@/components/shared/FSCard";
 import { Pill }      from "@/components/shared/Pill";
 import { formatINR } from "@/lib/format";
+import { usePersona } from "@/lib/usePersona";
 import { rahul }     from "@/lib/personas";
 
 const SIPS = [
@@ -57,8 +59,26 @@ const sparkPath = PORT_SPARK.map((p, i) => `${i === 0 ? "M" : "L"}${p.x} ${sy(p.
 const sparkArea = sparkPath + ` L${PORT_SPARK[PORT_SPARK.length - 1].x} 60 L0 60 Z`;
 
 export default function InvestPage() {
-  const todayDelta    = rahul.portfolioDeltaToday;
+  const persona = usePersona();
+
+  // Dynamic values — fall back to rahul if no onboarding data
+  const portValue     = persona?.portfolioValue     ?? rahul.portfolioValue;
+  const todayDelta    = persona?.portfolioDeltaToday ?? rahul.portfolioDeltaToday;
+  const sipTotal      = persona?.sipPerMonth         ?? rahul.sipPerMonth;
+  const goals         = persona?.goals               ?? rahul.goals;
+
   const deltaPositive = todayDelta >= 0;
+
+  // Scale sparkline Y values proportionally to actual portfolio
+  const scaleFactor = portValue / 184320;
+  const SPARK_SCALED = PORT_SPARK.map(p => ({ ...p, y: Math.round(p.y * scaleFactor) }));
+  const syScaled = (v: number) => {
+    const min = SPARK_SCALED[0].y * 0.97;
+    const max = SPARK_SCALED[SPARK_SCALED.length - 1].y * 1.02;
+    return 55 - ((v - min) / (max - min)) * 50;
+  };
+  const scaledPath = SPARK_SCALED.map((p, i) => `${i === 0 ? "M" : "L"}${p.x} ${syScaled(p.y)}`).join(" ");
+  const scaledArea = scaledPath + ` L${SPARK_SCALED[SPARK_SCALED.length - 1].x} 60 L0 60 Z`;
 
   return (
     <div className="pb-10">
@@ -101,17 +121,17 @@ export default function InvestPage() {
                 className="tnum text-[36px] font-medium leading-none"
                 style={{ fontFamily: "var(--font-display)", color: "var(--ink)" }}
               >
-                {formatINR(rahul.portfolioValue)}
+                {formatINR(portValue)}
               </div>
               <div className="flex items-center gap-1.5 mt-1.5">
                 {deltaPositive
-                  ? <TrendingUp size={13} style={{ color: "var(--good)" }} />
+                  ? <TrendingUp  size={13} style={{ color: "var(--good)" }} />
                   : <TrendingDown size={13} style={{ color: "var(--bad)" }} />}
                 <span
                   className="tnum text-[13px] font-semibold"
                   style={{ color: deltaPositive ? "var(--good)" : "var(--bad)" }}
                 >
-                  {deltaPositive ? "+" : ""}{formatINR(todayDelta)} today
+                  {deltaPositive ? "+" : ""}{formatINR(Math.abs(todayDelta))} today
                 </span>
               </div>
             </div>
@@ -126,7 +146,7 @@ export default function InvestPage() {
                 className="tnum text-[18px] font-bold mt-0.5"
                 style={{ fontFamily: "var(--font-display)", color: "var(--ink)" }}
               >
-                {formatINR(rahul.sipPerMonth)}
+                {formatINR(sipTotal)}
               </div>
             </div>
           </div>
@@ -139,11 +159,11 @@ export default function InvestPage() {
                 <stop offset="100%" stopColor="rgba(168,85,34,0)" />
               </linearGradient>
             </defs>
-            <path d={sparkArea} fill="url(#portGrad)" />
-            <path d={sparkPath} stroke="var(--saffron-deep)" strokeWidth="2"
+            <path d={scaledArea} fill="url(#portGrad)" />
+            <path d={scaledPath} stroke="var(--saffron-deep)" strokeWidth="2"
               fill="none" strokeLinecap="round" strokeLinejoin="round" />
-            {PORT_SPARK.map((p, i) => (
-              <circle key={i} cx={p.x} cy={sy(p.y)} r="2.5" fill="var(--saffron-deep)" />
+            {SPARK_SCALED.map((p, i) => (
+              <circle key={i} cx={p.x} cy={syScaled(p.y)} r="2.5" fill="var(--saffron-deep)" />
             ))}
             {SPARK_MONTHS.map((m, i) => (
               <text key={i} x={i * 48} y="64" fontSize="9"
@@ -201,7 +221,7 @@ export default function InvestPage() {
 
         {/* Goals progress ──────────────────────── */}
         <div className="eyebrow px-1 pt-2 pb-0.5">Goals</div>
-        {rahul.goals.map((g) => (
+        {goals.map((g) => (
           <FSCard key={g.id} tone="white" pad={14}>
             <div className="flex justify-between items-start mb-2">
               <div>

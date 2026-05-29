@@ -162,8 +162,15 @@ function QuestionsForm() {
 
   const next = () => {
     if (!isValid()) return;
-    if (step < TOTAL_STEPS) router.push(`/onboarding/questions?step=${step + 1}`);
-    else router.push("/onboarding/finscore");
+    if (step < TOTAL_STEPS) {
+      router.push(`/onboarding/questions?step=${step + 1}`);
+    } else {
+      // Persist answers so finscore + home + invest pages can read them
+      if (typeof window !== "undefined") {
+        localStorage.setItem("finsaathi:answers", JSON.stringify(ans));
+      }
+      router.push("/onboarding/finscore");
+    }
   };
 
   const back = () => {
