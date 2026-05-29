@@ -143,34 +143,34 @@ export default function FamilyPage() {
         <div className="px-[18px]">
           <div
             className="p-5 rounded-[22px] relative overflow-hidden"
-            style={{ background: "var(--ink)" }}
+            style={{
+              background: "linear-gradient(135deg, #faf0db 0%, #fbe7cf 55%, #f5d4a0 100%)",
+              border: "1.5px solid rgba(217,120,58,0.2)",
+              boxShadow: "0 2px 20px -6px rgba(168,85,34,0.18)",
+            }}
           >
-            {/* Glow */}
+            {/* Decorative glow */}
             <div
               className="absolute -right-10 -top-10 w-48 h-48 rounded-full pointer-events-none"
-              style={{ background: "radial-gradient(circle, rgba(217,120,58,0.28) 0%, transparent 65%)" }}
-            />
-            <div
-              className="absolute -left-6 bottom-0 w-32 h-32 rounded-full pointer-events-none"
-              style={{ background: "rgba(255,255,255,0.03)" }}
+              style={{ background: "radial-gradient(circle, rgba(217,120,58,0.22) 0%, transparent 65%)" }}
             />
 
             <div className="relative">
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <div className="eyebrow mb-1" style={{ color: "rgba(255,248,239,0.5)" }}>
+                  <div className="eyebrow mb-1" style={{ color: "var(--saffron-deep)" }}>
                     Household FinScore
                   </div>
                   <div className="flex items-baseline gap-3">
                     <span
                       className="tnum text-[56px] font-bold leading-none"
-                      style={{ fontFamily: "var(--font-display)", color: "#fff8ef" }}
+                      style={{ fontFamily: "var(--font-display)", color: "var(--ink)" }}
                     >
                       {household.finScore}
                     </span>
                     <div>
                       <Pill tone="rose" size="sm">Needs attention</Pill>
-                      <div className="text-[11px] mt-1.5" style={{ color: "rgba(255,248,239,0.45)" }}>
+                      <div className="text-[11px] mt-1.5" style={{ color: "var(--saffron-ink)", opacity: 0.7 }}>
                         Dragged by Pooja&apos;s score ({pooja.finScore})
                       </div>
                     </div>
@@ -178,9 +178,9 @@ export default function FamilyPage() {
                 </div>
                 <div
                   className="w-11 h-11 rounded-[13px] flex items-center justify-center shrink-0"
-                  style={{ background: "rgba(255,255,255,0.08)" }}
+                  style={{ background: "rgba(168,85,34,0.12)" }}
                 >
-                  <Users size={20} color="rgba(255,248,239,0.7)" strokeWidth={1.8} />
+                  <Users size={20} style={{ color: "var(--saffron-deep)" }} strokeWidth={1.8} />
                 </div>
               </div>
 
@@ -192,13 +192,13 @@ export default function FamilyPage() {
                 ].map((m) => (
                   <div key={m.name} className="flex-1">
                     <div className="flex justify-between text-[10px] mb-1.5"
-                      style={{ color: "rgba(255,248,239,0.5)" }}>
+                      style={{ color: "var(--saffron-ink)", opacity: 0.65 }}>
                       <span>{m.name}</span>
-                      <span className="tnum font-bold" style={{ color: "#fff8ef" }}>{m.score}</span>
+                      <span className="tnum font-bold" style={{ color: "var(--ink)", opacity: 1 }}>{m.score}</span>
                     </div>
                     <div
                       className="h-[5px] rounded-full overflow-hidden"
-                      style={{ background: "rgba(255,255,255,0.1)" }}
+                      style={{ background: "rgba(168,85,34,0.15)" }}
                     >
                       <div
                         className="h-full rounded-full"
@@ -212,7 +212,7 @@ export default function FamilyPage() {
               {/* Quick stats strip */}
               <div
                 className="mt-4 pt-4 flex gap-5 border-t"
-                style={{ borderColor: "rgba(255,248,239,0.1)" }}
+                style={{ borderColor: "rgba(168,85,34,0.18)" }}
               >
                 {[
                   { v: formatINR(household.netWorth, { abbreviate: true }), l: "Net worth" },
@@ -222,11 +222,11 @@ export default function FamilyPage() {
                   <div key={l}>
                     <div
                       className="tnum text-[15px] font-bold"
-                      style={{ color: alert ? "var(--bad)" : "#fff8ef" }}
+                      style={{ color: alert ? "var(--bad)" : "var(--ink)" }}
                     >
                       {v}
                     </div>
-                    <div className="text-[10px] mt-0.5" style={{ color: "rgba(255,248,239,0.45)" }}>
+                    <div className="text-[10px] mt-0.5" style={{ color: "var(--saffron-ink)", opacity: 0.6 }}>
                       {l}
                     </div>
                   </div>
