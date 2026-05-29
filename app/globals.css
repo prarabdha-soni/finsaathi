@@ -199,3 +199,37 @@ body {
 :root {
   --tint-bad: #fde8e4;
 }
+
+/* ── Saathi onboarding slider ────────────────────────────── */
+.saathi-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 5px;
+  border-radius: 99px;
+  outline: none;
+  cursor: pointer;
+}
+.saathi-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #1c1812;
+  box-shadow: 0 0 0 4px var(--saffron);
+  cursor: pointer;
+  transition: box-shadow 0.15s;
+}
+.saathi-slider::-webkit-slider-thumb:active {
+  box-shadow: 0 0 0 6px var(--saffron);
+}
+.saathi-slider::-moz-range-thumb {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #1c1812;
+  box-shadow: 0 0 0 4px var(--saffron);
+  cursor: pointer;
+  border: none;
+}

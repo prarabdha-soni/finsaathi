@@ -1,79 +1,81 @@
 "use client";
 import { useState, Suspense } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ChevronLeft, ChevronRight, Check, MapPin } from "lucide-react";
+import { ChevronLeft, ChevronRight, Check, Sparkles } from "lucide-react";
+import { Logo } from "@/components/shared/Logo";
 
-// Design tokens — dark navy theme
-const T = {
-  bg:             "#0a0f1a",
-  bgCard:         "rgba(255,255,255,0.04)",
-  bgSelected:     "rgba(0,212,170,0.08)",
-  border:         "rgba(255,255,255,0.08)",
-  borderSelected: "#00d4aa",
-  teal:           "#00d4aa",
-  blue:           "#0099ff",
-  purple:         "#a78bfa",
-  white:          "#ffffff",
-  muted:          "#94a3b8",
-  hint:           "#4e6080",
-  sora:           "var(--font-sora)",
-} as const;
+const TOTAL_STEPS = 8;
 
-// Phase config
-const PHASES = [
-  { id: "PROFILE",     steps: [1, 2, 3],          color: T.blue   },
-  { id: "FINANCES",    steps: [4, 5, 6, 7, 8, 9], color: T.teal   },
-  { id: "PREFERENCES", steps: [10, 11, 12],        color: T.purple },
-] as const;
-
-function getPhase(step: number) {
-  return PHASES.find((p) => (p.steps as readonly number[]).includes(step)) ?? PHASES[0];
-}
-
-// Answers state
+/* ── Answers ─────────────────────────────────────────────── */
 interface Answers {
-  age: string;
-  gender: string;
-  smoker: string;
-  income: number;
+  age:        number;
+  gender:     string;
+  income:     number;       // monthly ₹
   dependents: string[];
-  hasLoans: boolean;
-  loanAmount: number;
-  health: string;
-  occupation: string;
+  loans:      number;       // outstanding ₹ (0 = none)
+  health:     string;
   existingCover: string;
-  pinCode: string;
-  city: string;
-  state: string;
-  policyTerm: string;
-  payoutType: string;
+  city:       string;
 }
 
 const DEFAULTS: Answers = {
-  age:           "26–30",
-  gender:        "Male",
-  smoker:        "Non-smoker",
-  income:        600000,
-  dependents:    ["Spouse / Partner", "1 child"],
-  hasLoans:      true,
-  loanAmount:    2000000,
-  health:        "Healthy",
-  occupation:    "Salaried professional",
-  existingCover: "No cover at all",
-  pinCode:       "302001",
-  city:          "Jaipur",
-  state:         "Rajasthan",
-  policyTerm:    "30 years",
-  payoutType:    "Lump sum",
+  age:          28,
+  gender:       "",
+  income:       65000,
+  dependents:   [],
+  loans:        2800000,
+  health:       "",
+  existingCover: "",
+  city:         "",
 };
 
-function rupee(n: number): string {
+/* ── Formatters ──────────────────────────────────────────── */
+function fmtRupee(n: number) {
   if (n >= 10000000) return `₹${(n / 10000000).toFixed(1)} Cr`;
-  if (n >= 100000)   return `₹${(n / 100000).toFixed(0)} lakh`;
-  return `₹${(n / 1000).toFixed(0)}K`;
+  if (n >= 100000)   return `₹${(n / 100000).toFixed(0)}L`;
+  if (n >= 1000)     return `₹${(n / 1000).toFixed(0)}K`;
+  return `₹${n}`;
 }
 
-// Chip component
+/* ── Per-step insight copy ───────────────────────────────── */
+function getInsight(step: number, ans: Answers): string {
+  switch (step) {
+    case 1: {
+      const working = Math.max(0, 60 - ans.age);
+      return `At ${ans.age}, you have ${working} working years ahead. Saathi will plan term cover till 60 — longer than most agents bother to mention.`;
+    }
+    case 2:
+      return ans.gender === "Female"
+        ? "Women live ~5 years longer than men. Your term cover cost is 10–15% lower — we'll find you the best rate."
+        : "You're the financial backbone. Saathi sizes your cover to replace exactly what your family depends on.";
+    case 3: {
+      const annual = ans.income * 12;
+      const cover  = annual * 15;
+      return `₹${fmtRupee(ans.income)}/mo means your family needs ~${fmtRupee(cover)} to stay secure. We'll cross-check with your loans and goals.`;
+    }
+    case 4:
+      return ans.dependents.length === 0
+        ? "Planning ahead is smart. Premiums at your age are the lowest they'll ever be."
+        : `${ans.dependents.length} dependent${ans.dependents.length > 1 ? "s" : ""} — we'll factor in each of them into your cover calculation.`;
+    case 5:
+      return ans.loans === 0
+        ? "No loans — great! Your cover need is purely about income replacement."
+        : `Your ${fmtRupee(ans.loans)} loan must be cleared even if you're gone. We add it on top of income cover.`;
+    case 6:
+      return "Be honest — insurers verify at claim time. Your answer determines the right product, not whether you qualify.";
+    case 7:
+      return ans.existingCover === "No cover at all"
+        ? "Starting from zero means we size your cover precisely — no padding, no gap."
+        : "We deduct what you have. You only buy what's actually missing.";
+    case 8:
+      return "Plans differ by state. Entering your city takes 5 seconds and saves weeks of searching the wrong products.";
+    default:
+      return "";
+  }
+}
+
+/* ── Reusable chips ──────────────────────────────────────── */
 function Chip({
   label, sub, emoji, selected, onClick, multi,
 }: {
@@ -82,125 +84,91 @@ function Chip({
 }) {
   return (
     <button
+      type="button"
       onClick={onClick}
+      className="relative flex flex-col items-start gap-1 p-4 rounded-[16px] text-left w-full transition-all"
       style={{
-        position: "relative",
-        display: "flex", flexDirection: "column", alignItems: "flex-start",
-        gap: 4, padding: "14px 14px 14px 14px",
-        borderRadius: 16, textAlign: "left", width: "100%",
-        border: `1.5px solid ${selected ? T.borderSelected : T.border}`,
-        background: selected ? T.bgSelected : T.bgCard,
-        boxShadow: selected ? `0 0 0 1px ${T.teal}30, 0 0 18px ${T.teal}20` : "none",
-        cursor: "pointer", transition: "all 0.15s",
+        border:     `1.5px solid ${selected ? "var(--saffron)" : "var(--hairline)"}`,
+        background: selected ? "var(--tint-saffron)" : "var(--surface)",
+        boxShadow:  selected ? "0 0 0 1px var(--saffron)" : "none",
       }}
     >
       {multi && (
-        <div style={{
-          position: "absolute", top: 10, right: 10,
-          width: 20, height: 20, borderRadius: "50%",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          background: selected ? T.teal : "transparent",
-          border: `1.5px solid ${selected ? T.teal : "rgba(255,255,255,0.18)"}`,
-          flexShrink: 0,
-        }}>
-          {selected && <Check size={11} strokeWidth={3} color="#000" />}
-        </div>
+        <span
+          className="absolute top-3 right-3 w-5 h-5 rounded-full flex items-center justify-center"
+          style={{
+            background: selected ? "var(--saffron)" : "transparent",
+            border: `1.5px solid ${selected ? "var(--saffron)" : "var(--hairline-2)"}`,
+          }}
+        >
+          {selected && <Check size={11} strokeWidth={3} color="#fff8ef" />}
+        </span>
       )}
-      {emoji && <span style={{ fontSize: 22, lineHeight: 1 }}>{emoji}</span>}
-      <span style={{ fontSize: 13, fontWeight: 600, color: T.white }}>{label}</span>
-      {sub && <span style={{ fontSize: 11, color: T.hint }}>{sub}</span>}
+      {emoji && <span className="text-[22px] leading-none">{emoji}</span>}
+      <span className="text-[13px] font-semibold text-ink">{label}</span>
+      {sub && <span className="text-[11px]" style={{ color: "var(--ink-3)" }}>{sub}</span>}
     </button>
   );
 }
 
-// Large card (gender / smoker / payout)
+/* ── Big card (gender) ───────────────────────────────────── */
 function BigCard({
-  emoji, title, sub1, sub2, selected, onClick,
+  emoji, title, sub, selected, onClick,
 }: {
-  emoji: string; title: string; sub1?: string; sub2?: string;
+  emoji: string; title: string; sub?: string;
   selected: boolean; onClick: () => void;
 }) {
   return (
     <button
+      type="button"
       onClick={onClick}
+      className="flex-1 flex flex-col items-center justify-center gap-2.5 py-8 rounded-[20px] transition-all"
       style={{
-        flex: 1, display: "flex", flexDirection: "column",
-        alignItems: "center", justifyContent: "center",
-        gap: 8, padding: "24px 12px",
-        borderRadius: 20, minHeight: 150,
-        border: `1.5px solid ${selected ? T.borderSelected : T.border}`,
-        background: selected ? T.bgSelected : T.bgCard,
-        boxShadow: selected ? `0 0 0 1px ${T.teal}30, 0 0 22px ${T.teal}22` : "none",
-        cursor: "pointer", transition: "all 0.15s",
+        border:     `1.5px solid ${selected ? "var(--saffron)" : "var(--hairline)"}`,
+        background: selected ? "var(--tint-saffron)" : "var(--surface)",
+        boxShadow:  selected ? "0 0 0 1px var(--saffron)" : "none",
+        minHeight:  140,
       }}
     >
-      <span style={{ fontSize: 36 }}>{emoji}</span>
-      <span style={{ fontSize: 15, fontWeight: 700, color: T.white }}>{title}</span>
-      {sub1 && <span style={{ fontSize: 11, color: T.hint, textAlign: "center" }}>{sub1}</span>}
-      {sub2 && <span style={{ fontSize: 11, color: T.muted, textAlign: "center" }}>{sub2}</span>}
+      <span className="text-[36px] leading-none">{emoji}</span>
+      <span className="text-[15px] font-bold text-ink">{title}</span>
+      {sub && <span className="text-[11px] text-center px-3" style={{ color: "var(--ink-3)" }}>{sub}</span>}
     </button>
   );
 }
 
-// Step shell — headline + hint + children
-function StepShell({
-  headline, hint, children,
-}: {
-  headline: string; hint: string; children: React.ReactNode;
-}) {
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-      <div>
-        <h2 style={{
-          fontSize: 26, fontWeight: 700, color: T.white,
-          lineHeight: 1.2, fontFamily: T.sora, margin: 0,
-        }}>
-          {headline}
-        </h2>
-        <p style={{ fontSize: 13, color: T.hint, marginTop: 8, lineHeight: 1.5 }}>
-          {hint}
-        </p>
-      </div>
-      {children}
-    </div>
-  );
-}
-
-// Main form
+/* ── Main form ───────────────────────────────────────────── */
 function QuestionsForm() {
   const router       = useRouter();
   const searchParams = useSearchParams();
-  const step         = Math.max(1, Math.min(12, Number(searchParams.get("step") ?? "1")));
+  const step = Math.max(1, Math.min(TOTAL_STEPS, Number(searchParams.get("step") ?? "1")));
   const [ans, setAns] = useState<Answers>(DEFAULTS);
 
-  const phase    = getPhase(step);
-  const progress = (step / 12) * 100;
+  /* fill % for range track */
+  const trackPct = (val: number, min: number, max: number) =>
+    `${((val - min) / (max - min)) * 100}%`;
 
   const isValid = (): boolean => {
-    if (step === 1)  return !!ans.age;
-    if (step === 2)  return !!ans.gender;
-    if (step === 3)  return !!ans.smoker;
-    if (step === 4)  return ans.income > 0;
-    if (step === 5)  return ans.dependents.length > 0;
-    if (step === 6)  return true;
-    if (step === 7)  return !!ans.health;
-    if (step === 8)  return !!ans.occupation;
-    if (step === 9)  return !!ans.existingCover;
-    if (step === 10) return ans.pinCode.length === 6;
-    if (step === 11) return !!ans.policyTerm;
-    if (step === 12) return !!ans.payoutType;
+    if (step === 1) return ans.age >= 18 && ans.age <= 75;
+    if (step === 2) return !!ans.gender;
+    if (step === 3) return ans.income > 0;
+    if (step === 4) return ans.dependents.length > 0;
+    if (step === 5) return true; // loans optional
+    if (step === 6) return !!ans.health;
+    if (step === 7) return !!ans.existingCover;
+    if (step === 8) return ans.city.trim().length >= 2;
     return false;
   };
 
   const next = () => {
     if (!isValid()) return;
-    if (step < 12) router.push(`/onboarding/questions?step=${step + 1}`);
+    if (step < TOTAL_STEPS) router.push(`/onboarding/questions?step=${step + 1}`);
     else router.push("/onboarding/finscore");
   };
 
   const back = () => {
     if (step > 1) router.push(`/onboarding/questions?step=${step - 1}`);
-    else router.push("/onboarding/welcome");
+    else router.push("/onboarding/splash");
   };
 
   const toggleDep = (id: string) =>
@@ -211,369 +179,298 @@ function QuestionsForm() {
         : [...a.dependents, id],
     }));
 
-  function renderStep() {
+  /* ── Question text per step ──────────────────────────── */
+  const STEPS: { headline: React.ReactNode; sub: string }[] = [
+    {
+      headline: <>How old are <em className="italic" style={{ color: "var(--saffron-deep)" }}>you</em>?</>,
+      sub:      "आपकी उम्र क्या है? · We use this to set term cover length.",
+    },
+    {
+      headline: <>What&apos;s your <em className="italic" style={{ color: "var(--saffron-deep)" }}>gender</em>?</>,
+      sub:      "Gender · Affects premium by 10–15%.",
+    },
+    {
+      headline: <>Your monthly <em className="italic" style={{ color: "var(--saffron-deep)" }}>income</em>?</>,
+      sub:      "मासिक आय क्या है? · Used to calculate how much cover you need.",
+    },
+    {
+      headline: <>Who <em className="italic" style={{ color: "var(--saffron-deep)" }}>depends</em> on you?</>,
+      sub:      "आप पर कौन निर्भर है? · Select all that apply.",
+    },
+    {
+      headline: <>Any outstanding <em className="italic" style={{ color: "var(--saffron-deep)" }}>loans</em>?</>,
+      sub:      "बकाया लोन? · Home, car, personal — all of it.",
+    },
+    {
+      headline: <>Any health <em className="italic" style={{ color: "var(--saffron-deep)" }}>conditions</em>?</>,
+      sub:      "स्वास्थ्य · Honesty protects your family's claim.",
+    },
+    {
+      headline: <>Existing life <em className="italic" style={{ color: "var(--saffron-deep)" }}>cover</em>?</>,
+      sub:      "मौजूदा बीमा · We'll only add what's missing.",
+    },
+    {
+      headline: <>Which <em className="italic" style={{ color: "var(--saffron-deep)" }}>city</em> are you in?</>,
+      sub:      "आपका शहर? · For regional plan availability.",
+    },
+  ];
+
+  const { headline, sub } = STEPS[step - 1];
+  const valid   = isValid();
+  const insight = getInsight(step, ans);
+
+  /* ── Step body ───────────────────────────────────────── */
+  function renderBody() {
     switch (step) {
 
-      /* ── STEP 1 — Age ─────────────────────────── */
-      case 1:
+      /* Step 1 — Age slider */
+      case 1: {
+        const pct = trackPct(ans.age, 18, 75);
         return (
-          <StepShell headline="How old are you?"
-            hint="Every year you wait adds 4–8% to your premium">
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-              {["18–25","26–30","31–35","36–40","41–45","46+"].map((o) => (
-                <Chip key={o} label={o} selected={ans.age === o}
-                  onClick={() => setAns((a) => ({ ...a, age: o }))} />
-              ))}
+          <div className="flex flex-col gap-5">
+            {/* Large number */}
+            <div className="flex flex-col items-center gap-1 pt-2">
+              <span
+                className="tnum leading-none"
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontSize: 88,
+                  fontWeight: 500,
+                  color: "var(--saffron-deep)",
+                  letterSpacing: "-0.02em",
+                }}
+              >
+                {ans.age}
+              </span>
+              <span className="text-[15px] font-medium" style={{ color: "var(--ink-3)" }}>
+                years
+              </span>
             </div>
-          </StepShell>
-        );
 
-      /* ── STEP 2 — Gender ──────────────────────── */
-      case 2:
-        return (
-          <StepShell headline="What is your gender?"
-            hint="Women get 10–15% lower premiums due to higher life expectancy">
-            <div style={{ display: "flex", gap: 12 }}>
-              <BigCard emoji="👨" title="Male" selected={ans.gender === "Male"}
-                onClick={() => setAns((a) => ({ ...a, gender: "Male" }))} />
-              <BigCard emoji="👩" title="Female" selected={ans.gender === "Female"}
-                onClick={() => setAns((a) => ({ ...a, gender: "Female" }))} />
-            </div>
-          </StepShell>
-        );
-
-      /* ── STEP 3 — Smoker ──────────────────────── */
-      case 3:
-        return (
-          <StepShell headline="Do you smoke or use tobacco?"
-            hint="Smokers pay 40–80% more. Be honest — insurers verify at claim time">
-            <div style={{ display: "flex", gap: 12 }}>
-              <BigCard emoji="🌿" title="Non-smoker" sub1="Never or quit 12+ months ago"
-                selected={ans.smoker === "Non-smoker"}
-                onClick={() => setAns((a) => ({ ...a, smoker: "Non-smoker" }))} />
-              <BigCard emoji="🚬" title="Smoker" sub1="Current or recent use"
-                selected={ans.smoker === "Smoker"}
-                onClick={() => setAns((a) => ({ ...a, smoker: "Smoker" }))} />
-            </div>
-          </StepShell>
-        );
-
-      /* ── STEP 4 — Income ──────────────────────── */
-      case 4:
-        return (
-          <StepShell headline="What is your annual income?"
-            hint="Determines how many years of income your cover must replace">
-            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              <div style={{
-                display: "flex", flexDirection: "column", alignItems: "center",
-                padding: "28px 16px", borderRadius: 20,
-                background: T.bgCard, border: `1.5px solid ${T.border}`,
-              }}>
-                <span style={{
-                  fontSize: 48, fontWeight: 800, color: T.teal,
-                  fontFamily: T.sora, lineHeight: 1,
-                }}>
-                  {rupee(ans.income)}
-                </span>
-                <span style={{ fontSize: 13, color: T.hint, marginTop: 8 }}>per year</span>
-              </div>
-              <input type="range" min={200000} max={10000000} step={100000}
-                value={ans.income}
-                onChange={(e) => setAns((a) => ({ ...a, income: Number(e.target.value) }))}
-                style={{ accentColor: T.teal, width: "100%", cursor: "pointer", height: 4 }} />
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: T.hint }}>
-                <span>₹2 lakh</span><span>₹1 Cr+</span>
-              </div>
-            </div>
-          </StepShell>
-        );
-
-      /* ── STEP 5 — Dependents ──────────────────── */
-      case 5:
-        return (
-          <StepShell headline="Who financially depends on you?"
-            hint="Select all that apply">
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-              {[
-                { id: "Spouse / Partner",  emoji: "💑", sub: "Primary breadwinner"  },
-                { id: "1 child",           emoji: "👶", sub: "Under 18 years"        },
-                { id: "2+ children",       emoji: "👨‍👧‍👦", sub: "Under 18 years"       },
-                { id: "Dependent parents", emoji: "👴", sub: "No pension / income"   },
-                { id: "No dependents yet", emoji: "🧑", sub: "Planning ahead"        },
-              ].map((d) => (
-                <Chip key={d.id} label={d.id} sub={d.sub} emoji={d.emoji}
-                  selected={ans.dependents.includes(d.id)}
-                  onClick={() => toggleDep(d.id)} multi />
-              ))}
-            </div>
-          </StepShell>
-        );
-
-      /* ── STEP 6 — Loans ───────────────────────── */
-      case 6:
-        return (
-          <StepShell headline="What is your total outstanding loan amount?"
-            hint="Any debt your family would inherit — home, car, personal loans">
-            <div style={{ display: "flex", gap: 10, marginBottom: 4 }}>
-              <Chip label="✨  Debt free" selected={!ans.hasLoans}
-                onClick={() => setAns((a) => ({ ...a, hasLoans: false }))} />
-              <Chip label="🏠  Yes, I have loans" selected={ans.hasLoans}
-                onClick={() => setAns((a) => ({ ...a, hasLoans: true }))} />
-            </div>
-            {ans.hasLoans && (
-              <div style={{
-                display: "flex", flexDirection: "column", gap: 14,
-                padding: "20px 16px", borderRadius: 20,
-                background: T.bgCard, border: `1.5px solid ${T.border}`,
-              }}>
-                <div style={{ textAlign: "center" }}>
-                  <span style={{
-                    fontSize: 42, fontWeight: 800, color: T.teal,
-                    fontFamily: T.sora, lineHeight: 1,
-                  }}>
-                    {rupee(ans.loanAmount)}
+            {/* Slider */}
+            <div className="px-1">
+              <input
+                type="range" min={18} max={75} step={1}
+                value={ans.age}
+                onChange={(e) => setAns((a) => ({ ...a, age: Number(e.target.value) }))}
+                className="saathi-slider"
+                style={{
+                  background: `linear-gradient(to right, var(--saffron) 0%, var(--saffron) ${pct}, var(--surface-3) ${pct}, var(--surface-3) 100%)`,
+                }}
+              />
+              {/* Labels */}
+              <div className="flex justify-between mt-3 px-0.5">
+                {[18, 30, 45, 60, 75].map((v) => (
+                  <span
+                    key={v}
+                    className="text-[11px] font-medium"
+                    style={{ color: ans.age === v ? "var(--saffron-deep)" : "var(--ink-3)" }}
+                  >
+                    {v}
                   </span>
-                </div>
-                <input type="range" min={100000} max={20000000} step={100000}
-                  value={ans.loanAmount}
-                  onChange={(e) => setAns((a) => ({ ...a, loanAmount: Number(e.target.value) }))}
-                  style={{ accentColor: T.teal, width: "100%", cursor: "pointer" }} />
-                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: T.hint }}>
-                  <span>₹1 lakh</span><span>₹2 Cr+</span>
-                </div>
-              </div>
-            )}
-          </StepShell>
-        );
-
-      /* ── STEP 7 — Health ──────────────────────── */
-      case 7:
-        return (
-          <StepShell headline="Any pre-existing health conditions?"
-            hint="Honesty protects your family's claim">
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-              {[
-                { id: "Healthy",             emoji: "💪", sub: "No major conditions"     },
-                { id: "Diabetes",            emoji: "🩸", sub: "Type 1 or Type 2"        },
-                { id: "Blood pressure",      emoji: "💊", sub: "Hypertension, controlled" },
-                { id: "Heart condition",     emoji: "❤️", sub: "Past or current"          },
-                { id: "Other condition",     emoji: "🏥", sub: "Cancer, kidney, etc."     },
-                { id: "Multiple conditions", emoji: "📋", sub: ""                         },
-              ].map((h) => (
-                <Chip key={h.id} label={h.id} sub={h.sub} emoji={h.emoji}
-                  selected={ans.health === h.id}
-                  onClick={() => setAns((a) => ({ ...a, health: h.id }))} />
-              ))}
-            </div>
-          </StepShell>
-        );
-
-      /* ── STEP 8 — Occupation ──────────────────── */
-      case 8:
-        return (
-          <StepShell headline="What is your occupation type?"
-            hint="High-risk jobs attract 20–50% premium loading">
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-              {[
-                { id: "Salaried professional", emoji: "💼", sub: "Office / desk job"              },
-                { id: "Business owner",        emoji: "🏪", sub: "Self-employed"                  },
-                { id: "High-risk job",         emoji: "⚠️", sub: "Mining, construction, defence"  },
-                { id: "Other",                 emoji: "🧑‍🎓", sub: "Student"                         },
-              ].map((o) => (
-                <Chip key={o.id} label={o.id} sub={o.sub} emoji={o.emoji}
-                  selected={ans.occupation === o.id}
-                  onClick={() => setAns((a) => ({ ...a, occupation: o.id }))} />
-              ))}
-            </div>
-          </StepShell>
-        );
-
-      /* ── STEP 9 — Existing Cover ──────────────── */
-      case 9:
-        return (
-          <StepShell headline="Do you already have life insurance?"
-            hint="We'll deduct this from your recommended cover">
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-              {[
-                { id: "No cover at all",  emoji: "0️⃣", sub: ""                   },
-                { id: "Under ₹25 lakh",  emoji: "🔒", sub: "Employer basic only" },
-                { id: "₹25L – ₹1Cr",    emoji: "🛡️", sub: ""                   },
-                { id: "₹1Cr+",           emoji: "💎", sub: ""                   },
-              ].map((c) => (
-                <Chip key={c.id} label={c.id} sub={c.sub} emoji={c.emoji}
-                  selected={ans.existingCover === c.id}
-                  onClick={() => setAns((a) => ({ ...a, existingCover: c.id }))} />
-              ))}
-            </div>
-          </StepShell>
-        );
-
-      /* ── STEP 10 — Location ───────────────────── */
-      case 10: {
-        const pinOk = ans.pinCode.length === 6;
-        return (
-          <StepShell headline="Where are you located?"
-            hint="For agent assignment and regional plan availability">
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              {/* PIN row */}
-              <div style={{ display: "flex", gap: 10 }}>
-                <input
-                  type="text" maxLength={6} inputMode="numeric"
-                  value={ans.pinCode}
-                  onChange={(e) => setAns((a) => ({ ...a, pinCode: e.target.value.replace(/\D/g, "") }))}
-                  placeholder="PIN code"
-                  style={{
-                    flex: 1, background: T.bgCard,
-                    border: `1.5px solid ${pinOk ? T.teal : T.border}`,
-                    borderRadius: 12, padding: "13px 16px",
-                    color: T.white, fontSize: 15, fontWeight: 600,
-                    outline: "none", fontFamily: T.sora,
-                  }}
-                />
-                <button style={{
-                  padding: "0 18px", borderRadius: 12, whiteSpace: "nowrap",
-                  background: `linear-gradient(135deg, ${T.teal}, ${T.blue})`,
-                  color: "#000", fontSize: 13, fontWeight: 700,
-                  border: "none", cursor: "pointer",
-                }}>
-                  Look up →
-                </button>
-              </div>
-
-              {/* Confirmation */}
-              {pinOk && (
-                <div style={{
-                  display: "flex", alignItems: "center", gap: 8,
-                  padding: "10px 14px", borderRadius: 12,
-                  background: "rgba(0,212,170,0.1)",
-                  border: `1px solid ${T.teal}45`,
-                }}>
-                  <MapPin size={14} style={{ color: T.teal, flexShrink: 0 }} />
-                  <span style={{ fontSize: 13, color: T.teal, fontWeight: 600 }}>
-                    Found: {ans.city}, {ans.state} — plans available
-                  </span>
-                </div>
-              )}
-
-              {/* City / State */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                {(["city", "state"] as const).map((key) => (
-                  <div key={key}>
-                    <label style={{
-                      fontSize: 11, color: T.hint, display: "block",
-                      marginBottom: 6, textTransform: "capitalize",
-                    }}>
-                      {key}
-                    </label>
-                    <input
-                      value={ans[key]}
-                      onChange={(e) => setAns((a) => ({ ...a, [key]: e.target.value }))}
-                      style={{
-                        width: "100%", background: T.bgCard,
-                        border: `1.5px solid ${T.border}`, borderRadius: 12,
-                        padding: "11px 14px", color: T.white, fontSize: 14,
-                        outline: "none", boxSizing: "border-box",
-                      }}
-                    />
-                  </div>
                 ))}
               </div>
             </div>
-          </StepShell>
+          </div>
         );
       }
 
-      /* ── STEP 11 — Policy Term ────────────────── */
-      case 11:
+      /* Step 2 — Gender */
+      case 2:
         return (
-          <StepShell headline="How long should your cover last?"
-            hint="Cover yourself until dependents are independent and loans repaid">
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                {[
-                  { id: "20 years",    emoji: "📅", sub: "Good for younger buyers"    },
-                  { id: "30 years",    emoji: "📆", sub: "Comprehensive long cover"    },
-                  { id: "Till age 60", emoji: "🔐", sub: "Covers working years"        },
-                  { id: "Till age 65", emoji: "🏁", sub: "Post-retirement buffer"      },
-                  { id: "Till age 70", emoji: "♾️", sub: "Maximum protection"         },
-                  { id: "Advise me",   emoji: "🤔", sub: "Let FinSaathi decide"        },
-                ].map((t) => (
-                  <Chip key={t.id} label={t.id} sub={t.sub} emoji={t.emoji}
-                    selected={ans.policyTerm === t.id}
-                    onClick={() => setAns((a) => ({ ...a, policyTerm: t.id }))} />
-                ))}
-              </div>
-              {ans.policyTerm === "30 years" && (
-                <div style={{
-                  padding: "12px 14px", borderRadius: 12,
-                  background: `${T.blue}18`,
-                  border: `1px solid ${T.blue}35`,
-                }}>
-                  <p style={{ fontSize: 12, color: T.blue, lineHeight: 1.5, margin: 0 }}>
-                    Most popular choice. Covers home loan repayment and child education.
-                  </p>
-                </div>
-              )}
-            </div>
-          </StepShell>
+          <div className="flex gap-3">
+            <BigCard emoji="👨" title="Male"
+              selected={ans.gender === "Male"}
+              onClick={() => setAns((a) => ({ ...a, gender: "Male" }))} />
+            <BigCard emoji="👩" title="Female"
+              selected={ans.gender === "Female"}
+              onClick={() => setAns((a) => ({ ...a, gender: "Female" }))} />
+          </div>
         );
 
-      /* ── STEP 12 — Payout Type ────────────────── */
-      case 12:
+      /* Step 3 — Monthly income */
+      case 3: {
+        const pct = trackPct(ans.income, 10000, 500000);
         return (
-          <StepShell headline="How should the money reach your family?"
-            hint="Both options pay the full cover amount — just differently">
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              <div style={{ display: "flex", gap: 12 }}>
-                {[
-                  {
-                    id: "Lump sum", emoji: "💰",
-                    sub1: "Full amount paid at once. Family decides how to use it.",
-                    sub2: "e.g. ₹1.5 Cr on Day 1",
-                  },
-                  {
-                    id: "Monthly income", emoji: "📅",
-                    sub1: "Paid as monthly salary to family. Prevents mismanagement.",
-                    sub2: "e.g. ₹62,500/month × 20yr",
-                  },
-                ].map((opt) => {
-                  const sel = ans.payoutType === opt.id;
-                  return (
-                    <button key={opt.id}
-                      onClick={() => setAns((a) => ({ ...a, payoutType: opt.id }))}
-                      style={{
-                        flex: 1, display: "flex", flexDirection: "column",
-                        alignItems: "flex-start", gap: 8,
-                        padding: "20px 14px", borderRadius: 20, textAlign: "left",
-                        border: `1.5px solid ${sel ? T.borderSelected : T.border}`,
-                        background: sel ? T.bgSelected : T.bgCard,
-                        boxShadow: sel ? `0 0 0 1px ${T.teal}30, 0 0 20px ${T.teal}20` : "none",
-                        cursor: "pointer", transition: "all 0.15s",
-                      }}
-                    >
-                      <span style={{ fontSize: 32 }}>{opt.emoji}</span>
-                      <span style={{ fontSize: 14, fontWeight: 700, color: T.white }}>{opt.id}</span>
-                      <span style={{ fontSize: 11, color: T.hint, lineHeight: 1.45 }}>{opt.sub1}</span>
-                      <span style={{ fontSize: 11, color: T.muted }}>{opt.sub2}</span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {ans.payoutType === "Lump sum" && (
-                <div style={{
-                  padding: "12px 14px", borderRadius: 12,
-                  background: `${T.blue}18`,
-                  border: `1px solid ${T.blue}35`,
-                }}>
-                  <p style={{ fontSize: 12, color: T.blue, lineHeight: 1.5, margin: 0 }}>
-                    Best for families who can invest the lump sum or have large one-time
-                    liabilities like a home loan.
-                  </p>
-                </div>
-              )}
+          <div className="flex flex-col gap-5">
+            <div className="flex flex-col items-center gap-1 pt-2">
+              <span
+                className="tnum leading-none"
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontSize: 64,
+                  fontWeight: 500,
+                  color: "var(--saffron-deep)",
+                  letterSpacing: "-0.02em",
+                }}
+              >
+                {fmtRupee(ans.income)}
+              </span>
+              <span className="text-[15px] font-medium" style={{ color: "var(--ink-3)" }}>
+                per month
+              </span>
             </div>
-          </StepShell>
+            <div className="px-1">
+              <input
+                type="range" min={10000} max={500000} step={5000}
+                value={ans.income}
+                onChange={(e) => setAns((a) => ({ ...a, income: Number(e.target.value) }))}
+                className="saathi-slider"
+                style={{
+                  background: `linear-gradient(to right, var(--saffron) 0%, var(--saffron) ${pct}, var(--surface-3) ${pct}, var(--surface-3) 100%)`,
+                }}
+              />
+              <div className="flex justify-between mt-3 px-0.5">
+                {["₹10K", "₹1L", "₹2L", "₹3L", "₹5L+"].map((v) => (
+                  <span key={v} className="text-[11px] font-medium" style={{ color: "var(--ink-3)" }}>{v}</span>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      /* Step 4 — Dependents */
+      case 4:
+        return (
+          <div className="grid grid-cols-2 gap-2.5">
+            {[
+              { id: "Spouse / partner",  emoji: "💑", sub: "Primary breadwinner"    },
+              { id: "1 child",           emoji: "👶", sub: "Under 18 years"          },
+              { id: "2+ children",       emoji: "👨‍👧‍👦", sub: "Under 18 years"         },
+              { id: "Dependent parents", emoji: "👴", sub: "No independent income"   },
+              { id: "No dependents yet", emoji: "🧑", sub: "Planning ahead"          },
+            ].map((d) => (
+              <Chip key={d.id} label={d.id} sub={d.sub} emoji={d.emoji}
+                selected={ans.dependents.includes(d.id)}
+                onClick={() => toggleDep(d.id)} multi />
+            ))}
+          </div>
+        );
+
+      /* Step 5 — Loans */
+      case 5: {
+        const hasLoan = ans.loans > 0;
+        const pct     = trackPct(ans.loans, 0, 10000000);
+        return (
+          <div className="flex flex-col gap-4">
+            <div className="flex gap-2.5">
+              <Chip label="✨  Debt free" selected={!hasLoan}
+                onClick={() => setAns((a) => ({ ...a, loans: 0 }))} />
+              <Chip label="🏠  Yes, I have loans" selected={hasLoan}
+                onClick={() => setAns((a) => ({ ...a, loans: a.loans > 0 ? a.loans : 2800000 }))} />
+            </div>
+            {hasLoan && (
+              <div
+                className="p-4 rounded-[18px] flex flex-col gap-4"
+                style={{ background: "var(--surface)", border: "1px solid var(--hairline)" }}
+              >
+                <div className="flex flex-col items-center gap-1">
+                  <span
+                    className="tnum leading-none"
+                    style={{
+                      fontFamily: "var(--font-display)",
+                      fontSize: 52,
+                      fontWeight: 500,
+                      color: "var(--saffron-deep)",
+                      letterSpacing: "-0.02em",
+                    }}
+                  >
+                    {fmtRupee(ans.loans)}
+                  </span>
+                  <span className="text-[13px]" style={{ color: "var(--ink-3)" }}>total outstanding</span>
+                </div>
+                <input
+                  type="range" min={100000} max={10000000} step={100000}
+                  value={ans.loans}
+                  onChange={(e) => setAns((a) => ({ ...a, loans: Number(e.target.value) }))}
+                  className="saathi-slider"
+                  style={{
+                    background: `linear-gradient(to right, var(--saffron) 0%, var(--saffron) ${pct}, var(--surface-3) ${pct}, var(--surface-3) 100%)`,
+                  }}
+                />
+                <div className="flex justify-between">
+                  {["₹1L", "₹25L", "₹50L", "₹75L", "₹1Cr+"].map((v) => (
+                    <span key={v} className="text-[11px]" style={{ color: "var(--ink-3)" }}>{v}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      }
+
+      /* Step 6 — Health */
+      case 6:
+        return (
+          <div className="grid grid-cols-2 gap-2.5">
+            {[
+              { id: "Healthy",             emoji: "💪", sub: "No major conditions"     },
+              { id: "Diabetes",            emoji: "🩸", sub: "Type 1 or Type 2"        },
+              { id: "Blood pressure",      emoji: "💊", sub: "Hypertension, controlled" },
+              { id: "Heart condition",     emoji: "❤️", sub: "Past or current"          },
+              { id: "Other condition",     emoji: "🏥", sub: "Cancer, kidney, etc."     },
+              { id: "Multiple conditions", emoji: "📋", sub: ""                         },
+            ].map((h) => (
+              <Chip key={h.id} label={h.id} sub={h.sub} emoji={h.emoji}
+                selected={ans.health === h.id}
+                onClick={() => setAns((a) => ({ ...a, health: h.id }))} />
+            ))}
+          </div>
+        );
+
+      /* Step 7 — Existing cover */
+      case 7:
+        return (
+          <div className="grid grid-cols-2 gap-2.5">
+            {[
+              { id: "No cover at all", emoji: "0️⃣", sub: ""                   },
+              { id: "Under ₹25L",      emoji: "🔒", sub: "Employer basic only" },
+              { id: "₹25L – ₹1Cr",    emoji: "🛡️", sub: ""                   },
+              { id: "₹1Cr+",           emoji: "💎", sub: ""                   },
+            ].map((c) => (
+              <Chip key={c.id} label={c.id} sub={c.sub} emoji={c.emoji}
+                selected={ans.existingCover === c.id}
+                onClick={() => setAns((a) => ({ ...a, existingCover: c.id }))} />
+            ))}
+          </div>
+        );
+
+      /* Step 8 — City */
+      case 8:
+        return (
+          <div className="flex flex-col gap-3">
+            <input
+              type="text"
+              value={ans.city}
+              onChange={(e) => setAns((a) => ({ ...a, city: e.target.value }))}
+              placeholder="e.g. Jaipur, Mumbai, Bengaluru…"
+              className="w-full h-[54px] rounded-[14px] px-4 text-[15px] font-medium text-ink placeholder:text-muted-2 outline-none transition-all"
+              style={{
+                background: "var(--surface)",
+                border: `1.5px solid ${ans.city.length >= 2 ? "var(--saffron)" : "var(--hairline)"}`,
+                boxShadow: ans.city.length >= 2 ? "0 0 0 1px var(--saffron)" : "none",
+              }}
+            />
+            {/* Popular cities */}
+            <div className="flex flex-wrap gap-2 mt-1">
+              {["Delhi", "Mumbai", "Bengaluru", "Jaipur", "Hyderabad", "Chennai"].map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() => setAns((a) => ({ ...a, city: c }))}
+                  className="px-3 py-1.5 rounded-full text-[12px] font-semibold transition-all"
+                  style={{
+                    background: ans.city === c ? "var(--tint-saffron)" : "var(--surface)",
+                    border: `1px solid ${ans.city === c ? "var(--saffron)" : "var(--hairline)"}`,
+                    color: ans.city === c ? "var(--saffron-deep)" : "var(--ink-3)",
+                  }}
+                >
+                  {c}
+                </button>
+              ))}
+            </div>
+          </div>
         );
 
       default:
@@ -581,97 +478,125 @@ function QuestionsForm() {
     }
   }
 
-  const valid = isValid();
-
   return (
-    <div style={{
-      display: "flex", flexDirection: "column",
-      minHeight: "100dvh", background: T.bg,
-      fontFamily: T.sora, color: T.white,
-    }}>
-
-      {/* Header — back + step indicator + progress bar */}
-      <div style={{ flexShrink: 0, padding: "20px 20px 16px" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
-          {/* Back */}
-          <button onClick={back} style={{
-            width: 36, height: 36, borderRadius: "50%",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            background: "rgba(255,255,255,0.05)",
-            border: `1px solid ${T.border}`,
-            cursor: "pointer",
-          }}>
-            <ChevronLeft size={18} color={T.white} />
-          </button>
-
-          {/* Logo + step */}
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-            <span style={{
-              fontSize: 13, fontWeight: 800, letterSpacing: "0.04em",
-              background: `linear-gradient(135deg, ${T.teal}, ${T.blue})`,
-              WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-            }}>
-              FinSaathi
-            </span>
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <span style={{ fontSize: 11, color: T.hint }}>Step {step} of 12</span>
-              <span style={{
-                padding: "2px 8px", borderRadius: 99,
-                fontSize: 9, fontWeight: 700, letterSpacing: "0.1em",
-                background: `${phase.color}22`, color: phase.color,
-              }}>
-                {phase.id}
-              </span>
-            </div>
-          </div>
-
-          {/* Spacer */}
-          <div style={{ width: 36 }} />
-        </div>
-
-        {/* Progress bar */}
-        <div style={{
-          height: 3, borderRadius: 99, overflow: "hidden",
-          background: "rgba(255,255,255,0.07)",
-        }}>
-          <div style={{
-            height: "100%", borderRadius: 99,
-            width: `${progress}%`,
-            background: `linear-gradient(90deg, ${T.teal}, ${T.blue})`,
-            transition: "width 0.5s cubic-bezier(0.4,0,0.2,1)",
-          }} />
-        </div>
-      </div>
-
-      {/* Step content */}
-      <div style={{ flex: 1, overflowY: "auto", padding: "4px 20px 16px" }}>
-        {renderStep()}
-      </div>
-
-      {/* Continue button */}
-      <div style={{
-        flexShrink: 0,
-        padding: "12px 20px calc(env(safe-area-inset-bottom) + 28px)",
-      }}>
+    <div
+      className="flex flex-col"
+      style={{ minHeight: "100dvh", background: "var(--bg-app)" }}
+    >
+      {/* ── Top bar ────────────────────────────────── */}
+      <div className="shrink-0 flex items-center gap-3 px-5 pt-5 pb-4">
+        {/* Back */}
         <button
-          onClick={next}
-          disabled={!valid}
+          type="button"
+          onClick={back}
+          className="w-10 h-10 rounded-[12px] flex items-center justify-center shrink-0 transition-colors"
           style={{
-            display: "flex", alignItems: "center", justifyContent: "center",
-            gap: 8, width: "100%", height: 54,
-            borderRadius: 16, fontSize: 15, fontWeight: 700,
-            fontFamily: T.sora, cursor: valid ? "pointer" : "not-allowed",
-            border: valid ? "none" : `1.5px solid ${T.border}`,
-            background: valid
-              ? `linear-gradient(135deg, ${T.teal} 0%, ${T.blue} 100%)`
-              : "rgba(255,255,255,0.05)",
-            color: valid ? "#000" : T.hint,
-            boxShadow: valid ? `0 4px 28px ${T.teal}45` : "none",
-            transition: "all 0.2s",
+            background: "var(--surface)",
+            border: "1.5px solid var(--hairline)",
+            boxShadow: "0 1px 4px rgba(28,24,18,0.08)",
           }}
         >
-          {step === 12 ? "Calculate my cover" : "Continue"}
-          <ChevronRight size={18} strokeWidth={2.5} />
+          <ChevronLeft size={18} strokeWidth={2} style={{ color: "var(--ink-2)" }} />
+        </button>
+
+        {/* Progress dots + counter */}
+        <div className="flex-1 flex items-center gap-2.5">
+          <div className="flex gap-1.5 flex-1">
+            {Array.from({ length: TOTAL_STEPS }).map((_, i) => (
+              <div
+                key={i}
+                className="flex-1 h-[4px] rounded-full transition-all duration-300"
+                style={{
+                  background: i < step
+                    ? "var(--saffron)"
+                    : "var(--surface-3)",
+                }}
+              />
+            ))}
+          </div>
+          <span
+            className="shrink-0 text-[12px] font-bold tnum"
+            style={{ color: "var(--ink-3)" }}
+          >
+            {step}/{TOTAL_STEPS}
+          </span>
+        </div>
+      </div>
+
+      {/* ── Scrollable content ─────────────────────── */}
+      <div className="flex-1 overflow-y-auto px-5 pb-4">
+
+        {/* Saathi eyebrow */}
+        <div className="flex items-center gap-2 mb-4">
+          <Logo size={28} />
+          <span
+            className="text-[11px] font-bold tracking-[0.1em] uppercase"
+            style={{ color: "var(--saffron-deep)" }}
+          >
+            Saathi · Let&apos;s start easy
+          </span>
+        </div>
+
+        {/* Question heading */}
+        <h2
+          className="leading-[1.1] mb-2"
+          style={{
+            fontFamily: "var(--font-display)",
+            fontSize: "clamp(28px, 7vw, 36px)",
+            fontWeight: 500,
+            color: "var(--ink)",
+            letterSpacing: "-0.01em",
+          }}
+        >
+          {headline}
+        </h2>
+
+        {/* Subtitle */}
+        <p className="text-[13px] mb-6 leading-[1.5]" style={{ color: "var(--ink-3)" }}>
+          {sub}
+        </p>
+
+        {/* Step body */}
+        {renderBody()}
+
+        {/* Saathi insight */}
+        {insight && (
+          <div className="flex gap-3 items-start mt-6 p-4 rounded-[16px]"
+            style={{ background: "var(--surface-2)" }}>
+            <Sparkles
+              size={16}
+              strokeWidth={2}
+              className="shrink-0 mt-0.5"
+              style={{ color: "var(--saffron)" }}
+            />
+            <p className="text-[13px] leading-[1.5]" style={{ color: "var(--ink-2)" }}
+              dangerouslySetInnerHTML={{ __html: insight.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>") }}
+            />
+          </div>
+        )}
+      </div>
+
+      {/* ── Continue button ─────────────────────────── */}
+      <div
+        className="shrink-0 px-5 pb-8 pt-3"
+        style={{ paddingBottom: "max(32px, env(safe-area-inset-bottom))" }}
+      >
+        <button
+          type="button"
+          onClick={next}
+          disabled={!valid}
+          className="flex items-center justify-center gap-2 w-full h-[54px] rounded-[14px] text-[15px] font-semibold transition-all"
+          style={{
+            background: valid ? "var(--saffron)" : "var(--surface-3)",
+            color:      valid ? "#fff8ef"         : "var(--ink-3)",
+            boxShadow:  valid
+              ? "0 1px 0 rgba(255,255,255,0.25) inset, 0 2px 12px rgba(168,85,34,0.3)"
+              : "none",
+            cursor: valid ? "pointer" : "not-allowed",
+          }}
+        >
+          {step === TOTAL_STEPS ? "Calculate my FinScore" : "Continue"}
+          <ChevronRight size={18} strokeWidth={2.4} />
         </button>
       </div>
     </div>
