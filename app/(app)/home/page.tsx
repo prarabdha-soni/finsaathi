@@ -201,7 +201,7 @@ export default function HomePage() {
         ══════════════════════════════════════════════════ */}
         <Link href="/insights" className="block active:scale-[0.99] transition-transform">
           <div
-            className="rounded-[18px] p-4"
+            className="rounded-[16px] p-3"
             style={{
               background: "var(--surface)",
               border: "1.5px solid var(--hairline)",
@@ -209,26 +209,24 @@ export default function HomePage() {
             }}
           >
             {/* Header row */}
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2.5">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
                 <div
-                  className="w-8 h-8 rounded-[10px] flex items-center justify-center"
+                  className="w-7 h-7 rounded-[9px] flex items-center justify-center"
                   style={{ background: "var(--saffron)" }}
                 >
-                  <Sparkles size={15} strokeWidth={2} color="#fff8ef" />
+                  <Sparkles size={13} strokeWidth={2} color="#fff8ef" />
                 </div>
-                <div>
-                  <div className="text-[10px] font-extrabold tracking-[0.1em] uppercase" style={{ color: "var(--saffron-deep)" }}>
-                    Saathi · Always watching
-                  </div>
+                <div className="text-[10px] font-extrabold tracking-[0.1em] uppercase" style={{ color: "var(--saffron-deep)" }}>
+                  Saathi · Always watching
                 </div>
               </div>
-              <ChevronRight size={15} strokeWidth={2} style={{ color: "var(--ink-3)" }} />
+              <ChevronRight size={14} strokeWidth={2} style={{ color: "var(--ink-3)" }} />
             </div>
 
             {/* Headline */}
             <p
-              className="text-[17px] font-medium leading-[1.25] mb-3"
+              className="text-[15px] font-medium leading-[1.25] mb-2"
               style={{ fontFamily: "var(--font-display)", color: "var(--ink)" }}
             >
               I found{" "}
@@ -239,14 +237,14 @@ export default function HomePage() {
             </p>
 
             {/* Insight bullets */}
-            <div className="flex flex-col gap-2.5">
+            <div className="flex flex-col gap-1.5">
               {insights.map((ins, i) => (
-                <div key={i} className="flex items-start gap-2.5">
+                <div key={i} className="flex items-start gap-2">
                   <span
-                    className="w-2 h-2 rounded-full shrink-0 mt-[4px]"
+                    className="w-1.5 h-1.5 rounded-full shrink-0 mt-[4px]"
                     style={{ background: ins.dot }}
                   />
-                  <span className="text-[12px] leading-[1.5]" style={{ color: "var(--ink-2)" }}>
+                  <span className="text-[11px] leading-[1.45]" style={{ color: "var(--ink-2)" }}>
                     {ins.text}
                   </span>
                 </div>
@@ -255,14 +253,14 @@ export default function HomePage() {
 
             {/* Footer CTA */}
             <div
-              className="mt-3.5 pt-3 flex items-center justify-between"
+              className="mt-2.5 pt-2 flex items-center justify-between"
               style={{ borderTop: "1px solid var(--hairline)" }}
             >
-              <span className="text-[11px]" style={{ color: "var(--ink-3)" }}>
+              <span className="text-[10px]" style={{ color: "var(--ink-3)" }}>
                 Updated 2 hours ago
               </span>
-              <span className="text-[12px] font-bold flex items-center gap-0.5" style={{ color: "var(--saffron-deep)" }}>
-                See all insights <ChevronRight size={12} strokeWidth={2.5} />
+              <span className="text-[11px] font-bold flex items-center gap-0.5" style={{ color: "var(--saffron-deep)" }}>
+                See all insights <ChevronRight size={11} strokeWidth={2.5} />
               </span>
             </div>
           </div>
@@ -273,49 +271,49 @@ export default function HomePage() {
         ══════════════════════════════════════════════════ */}
         <Link href="/family" className="block active:scale-[0.99] transition-transform">
           <div
-            className="rounded-[18px] p-4 relative overflow-hidden"
+            className="rounded-[16px] p-3 relative overflow-hidden"
             style={{
               background: "linear-gradient(135deg, #faf0db 0%, #fbe7cf 55%, #f5d4a0 100%)",
               border: "1.5px solid rgba(217,120,58,0.2)",
-              boxShadow: "0 2px 16px -6px rgba(168,85,34,0.15)",
+              boxShadow: "0 2px 12px -6px rgba(168,85,34,0.15)",
             }}
           >
             {/* Decorative glow */}
             <div
-              className="absolute -right-8 -top-8 w-36 h-36 rounded-full pointer-events-none"
-              style={{ background: "radial-gradient(circle, rgba(217,120,58,0.2) 0%, transparent 65%)" }}
+              className="absolute -right-6 -top-6 w-28 h-28 rounded-full pointer-events-none"
+              style={{ background: "radial-gradient(circle, rgba(217,120,58,0.18) 0%, transparent 65%)" }}
             />
 
             <div className="relative">
               {/* Header row */}
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-1.5">
                   <div
-                    className="w-7 h-7 rounded-[9px] flex items-center justify-center"
+                    className="w-6 h-6 rounded-[7px] flex items-center justify-center"
                     style={{ background: "rgba(168,85,34,0.15)" }}
                   >
-                    <Users size={14} strokeWidth={2} style={{ color: "var(--saffron-deep)" }} />
+                    <Users size={12} strokeWidth={2} style={{ color: "var(--saffron-deep)" }} />
                   </div>
                   <div className="text-[10px] font-extrabold tracking-[0.1em] uppercase" style={{ color: "var(--saffron-deep)" }}>
                     Household FinScore
                   </div>
                 </div>
-                <div className="flex items-center gap-1 text-[12px] font-bold" style={{ color: "var(--saffron-deep)" }}>
-                  Family Hub <ChevronRight size={12} strokeWidth={2.5} />
+                <div className="flex items-center gap-0.5 text-[11px] font-bold" style={{ color: "var(--saffron-deep)" }}>
+                  Family Hub <ChevronRight size={11} strokeWidth={2.5} />
                 </div>
               </div>
 
-              {/* Score + grade */}
-              <div className="flex items-baseline gap-3 mb-3">
+              {/* Score + grade — horizontal compact layout */}
+              <div className="flex items-center gap-3 mb-2">
                 <span
-                  className="tnum text-[52px] font-bold leading-none"
+                  className="tnum text-[38px] font-bold leading-none"
                   style={{ fontFamily: "var(--font-display)", color: "var(--ink)" }}
                 >
                   {householdScore}
                 </span>
                 <div>
                   <Pill tone={householdGradeTone} size="sm">{householdGrade}</Pill>
-                  <div className="text-[11px] mt-1.5" style={{ color: "var(--saffron-ink)", opacity: 0.7 }}>
+                  <div className="text-[10px] mt-1" style={{ color: "var(--saffron-ink)", opacity: 0.7 }}>
                     Dragged by Pooja&apos;s score ({pooja.finScore})
                   </div>
                 </div>
@@ -323,26 +321,26 @@ export default function HomePage() {
 
               {/* Member score bars */}
               <div
-                className="rounded-[12px] p-3 flex flex-col gap-2.5"
+                className="rounded-[10px] px-2.5 py-2 flex flex-col gap-2"
                 style={{ background: "rgba(168,85,34,0.08)" }}
               >
                 {[
                   { name: firstName, score: finScore, pct: rahulBarPct, color: scoreColor },
                   { name: "Pooja",   score: pooja.finScore, pct: poojaBarPct, color: "var(--bad)" },
                 ].map((m) => (
-                  <div key={m.name} className="flex items-center gap-2.5">
-                    <span className="text-[12px] font-semibold" style={{ color: "var(--saffron-ink)", minWidth: 48 }}>
+                  <div key={m.name} className="flex items-center gap-2">
+                    <span className="text-[11px] font-semibold" style={{ color: "var(--saffron-ink)", minWidth: 44 }}>
                       {m.name}
                     </span>
-                    <div className="flex-1 h-[6px] rounded-full overflow-hidden" style={{ background: "rgba(168,85,34,0.15)" }}>
+                    <div className="flex-1 h-[4px] rounded-full overflow-hidden" style={{ background: "rgba(168,85,34,0.15)" }}>
                       <div
                         className="h-full rounded-full transition-all duration-700"
                         style={{ width: `${m.pct}%`, background: m.color }}
                       />
                     </div>
                     <span
-                      className="tnum text-[13px] font-bold"
-                      style={{ minWidth: 22, textAlign: "right", color: m.color }}
+                      className="tnum text-[12px] font-bold"
+                      style={{ minWidth: 20, textAlign: "right", color: m.color }}
                     >
                       {m.score}
                     </span>
@@ -352,7 +350,7 @@ export default function HomePage() {
 
               {/* Mini stats strip */}
               <div
-                className="flex mt-3 pt-3"
+                className="flex mt-2 pt-2"
                 style={{ borderTop: "1px solid rgba(168,85,34,0.18)" }}
               >
                 {[
@@ -366,7 +364,7 @@ export default function HomePage() {
                     style={{ borderLeft: i > 0 ? "1px solid rgba(168,85,34,0.18)" : "none" }}
                   >
                     <div
-                      className="tnum text-[15px] font-bold leading-tight"
+                      className="tnum text-[13px] font-bold leading-tight"
                       style={{ color: stat.alert ? "var(--bad)" : "var(--ink)" }}
                     >
                       {stat.value}
