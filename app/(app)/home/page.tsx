@@ -2,7 +2,7 @@
 import Link from "next/link";
 import {
   Bell, Shield, CreditCard, TrendingUp, Flag,
-  ChevronRight, Sparkles, AlertTriangle,
+  ChevronRight, AlertTriangle,
 } from "lucide-react";
 import { Logo }       from "@/components/shared/Logo";
 import { Avatar }     from "@/components/shared/Avatar";
@@ -574,74 +574,6 @@ export default function HomePage() {
             </div>
           </FSCard>
         </Link>
-
-        {/* Saathi note */}
-        <FSCard tone="cream" pad={14} className="flex gap-3 items-start" style={{ border: "1.5px dashed var(--hairline-2)" }}>
-          <span
-            className="w-8 h-8 rounded-[10px] flex items-center justify-center shrink-0"
-            style={{ background: "var(--surface-ink)", color: "var(--saffron-soft)" }}
-          >
-            <Sparkles size={15} strokeWidth={2} />
-          </span>
-          <div className="flex-1">
-            <div
-              className="text-[11px] font-bold tracking-[0.06em] uppercase"
-              style={{ color: "var(--ink-3)" }}
-            >
-              Saathi note
-            </div>
-            <p className="text-[13px] mt-1 leading-[1.45]" style={{ color: "var(--ink-2)" }}>
-              Nifty fell 2.1% today. Your portfolio is down{" "}
-              <strong style={{ color: "var(--ink)" }}>{formatINR(Math.abs(rahul.portfolioDeltaToday))}</strong>.{" "}
-              <em>This is normal noise.</em> Selling now would lock in the loss. Stay put.
-            </p>
-          </div>
-        </FSCard>
-
-        {/* Weekly lesson */}
-        <div>
-          <div className="flex items-baseline justify-between mb-2.5 px-0.5">
-            <span className="text-[11px] font-bold tracking-[0.1em] uppercase" style={{ color: "var(--ink-3)" }}>
-              This week&apos;s lesson
-            </span>
-            <span className="text-[12px] font-bold" style={{ color: "var(--saffron-deep)" }}>
-              Watch · 2 min
-            </span>
-          </div>
-          <FSCard tone="white" pad={0} className="overflow-hidden">
-            <div
-              className="h-[120px] flex items-center justify-center relative"
-              style={{
-                background: "repeating-linear-gradient(45deg, var(--surface-3) 0 6px, var(--surface-2) 6px 12px)",
-              }}
-            >
-              <div
-                className="w-10 h-10 rounded-full flex items-center justify-center"
-                style={{ background: "rgba(28,24,18,0.6)", backdropFilter: "blur(4px)" }}
-              >
-                <div
-                  className="w-0 h-0 ml-0.5"
-                  style={{
-                    borderTop: "7px solid transparent",
-                    borderBottom: "7px solid transparent",
-                    borderLeft: "12px solid #fff8ef",
-                  }}
-                />
-              </div>
-            </div>
-            <div className="px-4 py-3">
-              <p
-                className="text-[16px] font-medium text-ink leading-[1.3]"
-                style={{ fontFamily: "var(--font-display)" }}
-              >
-                Why your LIC endowment quietly loses to a term + SIP combo
-              </p>
-              <p className="text-[11px] mt-1.5" style={{ color: "var(--ink-3)" }}>
-                2 min read · 24K Indians this week
-              </p>
-            </div>
-          </FSCard>
-        </div>
 
       </div>
     </div>
