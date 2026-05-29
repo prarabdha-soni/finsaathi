@@ -66,7 +66,7 @@ const trackEnd   = { x: CX + R, y: CY };
 const fillAngle = Math.PI + Math.PI * pct; // starts at left (180°), sweeps right
 const fillX = CX + R * Math.cos(fillAngle);
 const fillY = CY + R * Math.sin(fillAngle);
-const largeArc  = pct > 0.5 ? 1 : 0;
+const largeArc  = 0; // fill arc is always ≤ 180°, so large-arc is never needed
 
 // Score colour
 const scoreColor = rahul.cibil >= 750 ? "var(--good)" : rahul.cibil >= 700 ? "var(--caution)" : "var(--caution)";
