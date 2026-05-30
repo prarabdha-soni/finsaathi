@@ -1,14 +1,15 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, MessageCircle, Wallet, User } from "lucide-react";
+import { Home, Users, MessageCircle, Wallet, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const tabs = [
-  { id: "home",   label: "Home",   icon: Home,          href: "/home" },
+  { id: "home",   label: "Home",   icon: Home,          href: "/home"   },
+  { id: "family", label: "Family", icon: Users,         href: "/family" },
   { id: "saathi", label: "Saathi", icon: MessageCircle, href: "/saathi", highlight: true },
-  { id: "money",  label: "Money",  icon: Wallet,        href: "/money" },
-  { id: "me",     label: "Me",     icon: User,          href: "/me" },
+  { id: "money",  label: "Money",  icon: Wallet,        href: "/money"  },
+  { id: "me",     label: "Me",     icon: User,          href: "/me"     },
 ];
 
 export function BottomNav() {
@@ -60,7 +61,7 @@ export function BottomNav() {
             key={tab.id}
             href={tab.href}
             className={cn(
-              "flex flex-col items-center gap-1 px-3 py-1",
+              "flex flex-col items-center gap-1 px-2 py-1",
               isActive ? "text-ink" : "text-ink-3",
             )}
           >

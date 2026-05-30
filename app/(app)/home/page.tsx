@@ -2,7 +2,7 @@
 import Link from "next/link";
 import {
   Bell, Shield, CreditCard, TrendingUp, TrendingDown,
-  ChevronRight, Flag, Sparkles, Users,
+  ChevronRight, Flag, Sparkles,
 } from "lucide-react";
 import { Avatar }     from "@/components/shared/Avatar";
 import { LangSwitch } from "@/components/shared/LangSwitch";
@@ -11,7 +11,7 @@ import { FSCard }     from "@/components/shared/FSCard";
 import { RingGauge }  from "@/components/finscore/RingGauge";
 import { formatINR }  from "@/lib/format";
 import { usePersona } from "@/lib/usePersona";
-import { rahul, pooja, household } from "@/lib/personas";
+import { rahul } from "@/lib/personas";
 
 function abbr(n: number) { return formatINR(n, { abbreviate: true }); }
 
@@ -48,19 +48,6 @@ export default function HomePage() {
     ? "All goals on track 🎉"
     : laggingGoals.slice(0, 2).map(g => g.name).join(" & ") + " lagging";
   const scoreColor    = finScore >= 70 ? "var(--good)" : finScore >= 52 ? "var(--caution)" : "var(--bad)";
-
-  // ── Household score (blend of user + Pooja) ──────────────
-  const householdScore = Math.round((finScore * 0.55 + pooja.finScore * 0.45));
-  const householdGrade =
-    householdScore >= 65 ? "On track" :
-    householdScore >= 50 ? "Developing" :
-    "Needs attention";
-  const householdGradeTone: "good" | "amber" | "rose" =
-    householdScore >= 65 ? "good" : householdScore >= 50 ? "amber" : "rose";
-
-  // Score bar widths (0–100 scale mapped to 300–900 CIBIL-style bucket)
-  const rahulBarPct = Math.round((finScore / 100) * 100);
-  const poojaBarPct = Math.round((pooja.finScore / 100) * 100);
 
   // ── Saathi insights (dynamic 3 bullets) ──────────────────
   const idleAmt = abbr(Math.round(portValue * 0.13));
@@ -413,119 +400,6 @@ export default function HomePage() {
               <span className="text-[11px] font-bold flex items-center gap-0.5" style={{ color: "var(--saffron-deep)" }}>
                 See all insights <ChevronRight size={11} strokeWidth={2.5} />
               </span>
-            </div>
-          </div>
-        </Link>
-
-        {/* ══════════════════════════════════════════════════
-            FAMILY HUB — single card replacing member scroll
-        ══════════════════════════════════════════════════ */}
-        <Link href="/family" className="block active:scale-[0.99] transition-transform">
-          <div
-            className="rounded-[16px] p-3 relative overflow-hidden"
-            style={{
-              background: "linear-gradient(135deg, #faf0db 0%, #fbe7cf 55%, #f5d4a0 100%)",
-              border: "1.5px solid rgba(217,120,58,0.2)",
-              boxShadow: "0 2px 12px -6px rgba(168,85,34,0.15)",
-            }}
-          >
-            {/* Decorative glow */}
-            <div
-              className="absolute -right-6 -top-6 w-28 h-28 rounded-full pointer-events-none"
-              style={{ background: "radial-gradient(circle, rgba(217,120,58,0.18) 0%, transparent 65%)" }}
-            />
-
-            <div className="relative">
-              {/* Header row */}
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-1.5">
-                  <div
-                    className="w-6 h-6 rounded-[7px] flex items-center justify-center"
-                    style={{ background: "rgba(168,85,34,0.15)" }}
-                  >
-                    <Users size={12} strokeWidth={2} style={{ color: "var(--saffron-deep)" }} />
-                  </div>
-                  <div className="text-[10px] font-extrabold tracking-[0.1em] uppercase" style={{ color: "var(--saffron-deep)" }}>
-                    Household FinScore
-                  </div>
-                </div>
-                <div className="flex items-center gap-0.5 text-[11px] font-bold" style={{ color: "var(--saffron-deep)" }}>
-                  Family Hub <ChevronRight size={11} strokeWidth={2.5} />
-                </div>
-              </div>
-
-              {/* Score + grade — horizontal compact layout */}
-              <div className="flex items-center gap-3 mb-2">
-                <span
-                  className="tnum text-[38px] font-bold leading-none"
-                  style={{ fontFamily: "var(--font-display)", color: "var(--ink)" }}
-                >
-                  {householdScore}
-                </span>
-                <div>
-                  <Pill tone={householdGradeTone} size="sm">{householdGrade}</Pill>
-                  <div className="text-[10px] mt-1" style={{ color: "var(--saffron-ink)", opacity: 0.7 }}>
-                    Dragged by Pooja&apos;s score ({pooja.finScore})
-                  </div>
-                </div>
-              </div>
-
-              {/* Member score bars */}
-              <div
-                className="rounded-[10px] px-2.5 py-2 flex flex-col gap-2"
-                style={{ background: "rgba(168,85,34,0.08)" }}
-              >
-                {[
-                  { name: firstName, score: finScore, pct: rahulBarPct, color: scoreColor },
-                  { name: "Pooja",   score: pooja.finScore, pct: poojaBarPct, color: "var(--bad)" },
-                ].map((m) => (
-                  <div key={m.name} className="flex items-center gap-2">
-                    <span className="text-[11px] font-semibold" style={{ color: "var(--saffron-ink)", minWidth: 44 }}>
-                      {m.name}
-                    </span>
-                    <div className="flex-1 h-[4px] rounded-full overflow-hidden" style={{ background: "rgba(168,85,34,0.15)" }}>
-                      <div
-                        className="h-full rounded-full transition-all duration-700"
-                        style={{ width: `${m.pct}%`, background: m.color }}
-                      />
-                    </div>
-                    <span
-                      className="tnum text-[12px] font-bold"
-                      style={{ minWidth: 20, textAlign: "right", color: m.color }}
-                    >
-                      {m.score}
-                    </span>
-                  </div>
-                ))}
-              </div>
-
-              {/* Mini stats strip */}
-              <div
-                className="flex mt-2 pt-2"
-                style={{ borderTop: "1px solid rgba(168,85,34,0.18)" }}
-              >
-                {[
-                  { label: "Net worth",  value: abbr(Math.abs(netWorth)),  alert: false },
-                  { label: "Runway",     value: "3.1 mo",                  alert: true  },
-                  { label: "Term cover", value: termOwned === 0 ? "₹0" : abbr(termOwned), alert: termOwned === 0 },
-                ].map((stat, i) => (
-                  <div
-                    key={stat.label}
-                    className="flex-1 text-center"
-                    style={{ borderLeft: i > 0 ? "1px solid rgba(168,85,34,0.18)" : "none" }}
-                  >
-                    <div
-                      className="tnum text-[13px] font-bold leading-tight"
-                      style={{ color: stat.alert ? "var(--bad)" : "var(--ink)" }}
-                    >
-                      {stat.value}
-                    </div>
-                    <div className="text-[9px] mt-0.5" style={{ color: "var(--saffron-ink)", opacity: 0.6 }}>
-                      {stat.label}
-                    </div>
-                  </div>
-                ))}
-              </div>
             </div>
           </div>
         </Link>
