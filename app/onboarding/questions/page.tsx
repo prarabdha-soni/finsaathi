@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { ChevronLeft, ChevronRight, Check, Sparkles } from "lucide-react";
 import { Logo } from "@/components/shared/Logo";
 
-const TOTAL_STEPS = 8;
+const TOTAL_STEPS = 9;
 
 /* ── Answers ─────────────────────────────────────────────── */
 interface Answers {
@@ -17,6 +17,7 @@ interface Answers {
   health:     string;
   existingCover: string;
   city:       string;
+  goals:      string[];     // financial goals selected in step 9
 }
 
 const DEFAULTS: Answers = {
@@ -28,6 +29,7 @@ const DEFAULTS: Answers = {
   health:       "",
   existingCover: "",
   city:         "",
+  goals:        [],
 };
 
 /* ── Formatters ──────────────────────────────────────────── */
@@ -70,6 +72,10 @@ function getInsight(step: number, ans: Answers): string {
         : "We deduct what you have. You only buy what's actually missing.";
     case 8:
       return "Plans differ by state. Entering your city takes 5 seconds and saves weeks of searching the wrong products.";
+    case 9:
+      return ans.goals.length === 0
+        ? "Each goal gets its own SIP, milestone tracker, and a Saathi nudge when you drift off course."
+        : `${ans.goals.length} goal${ans.goals.length > 1 ? "s" : ""} selected — Saathi will build a personalised tracker with SIP amounts and timelines for each one.`;
     default:
       return "";
   }
@@ -157,6 +163,7 @@ function QuestionsForm() {
     if (step === 6) return !!ans.health;
     if (step === 7) return !!ans.existingCover;
     if (step === 8) return ans.city.trim().length >= 2;
+    if (step === 9) return ans.goals.length > 0;
     return false;
   };
 
@@ -184,6 +191,14 @@ function QuestionsForm() {
       dependents: a.dependents.includes(id)
         ? a.dependents.filter((d) => d !== id)
         : [...a.dependents, id],
+    }));
+
+  const toggleGoal = (id: string) =>
+    setAns((a) => ({
+      ...a,
+      goals: a.goals.includes(id)
+        ? a.goals.filter((g) => g !== id)
+        : [...a.goals, id],
     }));
 
   /* ── Question text per step ──────────────────────────── */
@@ -219,6 +234,10 @@ function QuestionsForm() {
     {
       headline: <>Which <em className="italic" style={{ color: "var(--saffron-deep)" }}>city</em> are you in?</>,
       sub:      "आपका शहर? · For regional plan availability.",
+    },
+    {
+      headline: <>What are your <em className="italic" style={{ color: "var(--saffron-deep)" }}>financial goals</em>?</>,
+      sub:      "आपके लक्ष्य क्या हैं? · Pick all that matter — we'll build a tracker for each.",
     },
   ];
 
@@ -480,6 +499,27 @@ function QuestionsForm() {
           </div>
         );
 
+      /* Step 9 — Financial goals */
+      case 9:
+        return (
+          <div className="grid grid-cols-2 gap-2.5">
+            {[
+              { id: "Travel",           emoji: "✈️",  sub: "International or domestic trip"  },
+              { id: "Buy a car",        emoji: "🚗",  sub: "New or used vehicle"              },
+              { id: "Own a home",       emoji: "🏠",  sub: "Down payment & home loan"         },
+              { id: "Start a business", emoji: "💡",  sub: "Startup or side venture"          },
+              { id: "Marriage",         emoji: "💍",  sub: "Your own or child's wedding"       },
+              { id: "Child education",  emoji: "🎓",  sub: "School, college or abroad"        },
+              { id: "Early retirement", emoji: "🌅",  sub: "Financial freedom before 55"      },
+              { id: "Health buffer",    emoji: "🏥",  sub: "Medical & elder care fund"        },
+            ].map((g) => (
+              <Chip key={g.id} label={g.id} sub={g.sub} emoji={g.emoji}
+                selected={ans.goals.includes(g.id)}
+                onClick={() => toggleGoal(g.id)} multi />
+            ))}
+          </div>
+        );
+
       default:
         return null;
     }
@@ -602,7 +642,7 @@ function QuestionsForm() {
             cursor: valid ? "pointer" : "not-allowed",
           }}
         >
-          {step === TOTAL_STEPS ? "Calculate my FinScore" : "Continue"}
+          {step === TOTAL_STEPS ? "Build my plan →" : "Continue"}
           <ChevronRight size={18} strokeWidth={2.4} />
         </button>
       </div>

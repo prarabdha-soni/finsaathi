@@ -401,6 +401,219 @@ export default function FamilyPage() {
           </FSCard>
         </div>
 
+        {/* ── Family portfolio ─────────────────────────────── */}
+        <div className="px-[18px]">
+          <div className="eyebrow mb-3">Family portfolio</div>
+
+          {/* ─ Rahul ─ */}
+          <div className="mb-3">
+            <div className="flex items-center gap-2 mb-2">
+              <div
+                className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold shrink-0"
+                style={{ background: "var(--tint-saffron)", color: "var(--saffron-deep)" }}
+              >R</div>
+              <span className="text-[12px] font-bold text-ink">Rahul</span>
+              <Pill tone="good" size="sm">{rahul.portfolioXIRR}% XIRR</Pill>
+              <span className="ml-auto tnum text-[12px] font-bold text-ink">
+                {formatINR(rahul.portfolioValue, { abbreviate: true })}
+              </span>
+            </div>
+            <FSCard tone="white" pad={12}>
+              {rahul.stocks.map((s, i, arr) => {
+                const isStock = s.qty !== null && s.ltp !== null;
+                const val = isStock ? s.qty! * s.ltp! : ((s as any).mfValue ?? 0) as number;
+                const gain = isStock ? (s.ltp! - s.avg!) * s.qty! : null;
+                const gPct = gain !== null && s.avg ? ((s.ltp! - s.avg!) / s.avg!) * 100 : null;
+                return (
+                  <div
+                    key={s.symbol}
+                    className="flex items-center gap-2.5 py-2"
+                    style={{ borderBottom: i < arr.length - 1 ? "1px solid var(--hairline)" : "none" }}
+                  >
+                    <div
+                      className="w-8 h-8 rounded-[9px] flex items-center justify-center font-bold text-[9px] shrink-0"
+                      style={{ background: "var(--surface-3)", color: "var(--ink-2)" }}
+                    >
+                      {s.symbol.slice(0, 4)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-[12px] font-semibold text-ink truncate">{s.name}</div>
+                      <div className="text-[10px]" style={{ color: "var(--ink-3)" }}>
+                        {isStock
+                          ? `${s.qty} qty · avg ₹${s.avg?.toLocaleString("en-IN")}`
+                          : (s as any).isMF
+                          ? `${(s as any).mfUnits} units · NAV ₹${(s as any).nav}`
+                          : "MF"}
+                      </div>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <div className="tnum text-[12px] font-bold text-ink">
+                        {formatINR(val, { abbreviate: true })}
+                      </div>
+                      {gain !== null && gPct !== null ? (
+                        <div
+                          className="tnum text-[10px] font-semibold"
+                          style={{ color: gain >= 0 ? "var(--good)" : "var(--bad)" }}
+                        >
+                          {gain >= 0 ? "+" : ""}{formatINR(gain, { abbreviate: true })} ({gPct.toFixed(1)}%)
+                        </div>
+                      ) : (
+                        <div className="text-[10px]" style={{ color: "var(--ink-3)" }}>Mutual Fund</div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </FSCard>
+          </div>
+
+          {/* ─ Pooja ─ */}
+          <div className="mb-3">
+            <div className="flex items-center gap-2 mb-2">
+              <div
+                className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold shrink-0"
+                style={{ background: "var(--tint-indigo)", color: "var(--indigo)" }}
+              >P</div>
+              <span className="text-[12px] font-bold text-ink">Pooja</span>
+              <Pill tone="neutral" size="sm">Gold focused</Pill>
+            </div>
+            <FSCard tone="white" pad={12}>
+              {/* Physical gold row */}
+              <div
+                className="flex items-center gap-2.5 py-2"
+                style={{ borderBottom: "1px solid var(--hairline)" }}
+              >
+                <div
+                  className="w-8 h-8 rounded-[9px] flex items-center justify-center text-[14px] shrink-0"
+                  style={{ background: "rgba(254,240,138,0.35)" }}
+                >🥇</div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-[12px] font-semibold text-ink">Physical Gold</div>
+                  <div className="text-[10px]" style={{ color: "var(--ink-3)" }}>~40g jewellery</div>
+                </div>
+                <div className="text-right shrink-0">
+                  <div className="tnum text-[12px] font-bold text-ink">
+                    {formatINR(pooja.goldValue, { abbreviate: true })}
+                  </div>
+                </div>
+              </div>
+              {/* ETF + SGB */}
+              {pooja.stocks.map((s) => {
+                const isStock = s.qty !== null && !("isBond" in s);
+                const val = isStock ? s.qty! * s.ltp! : ((s as any).mfValue ?? 0) as number;
+                const gain = isStock ? (s.ltp! - s.avg!) * s.qty! : null;
+                const gPct = gain !== null && s.avg ? ((s.ltp! - s.avg!) / s.avg!) * 100 : null;
+                return (
+                  <div
+                    key={s.symbol}
+                    className="flex items-center gap-2.5 py-2"
+                    style={{ borderBottom: "1px solid var(--hairline)" }}
+                  >
+                    <div
+                      className="w-8 h-8 rounded-[9px] flex items-center justify-center font-bold text-[9px] shrink-0"
+                      style={{ background: "rgba(254,240,138,0.35)", color: "#92400e" }}
+                    >
+                      {s.symbol.slice(0, 4)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-[12px] font-semibold text-ink truncate">{s.name}</div>
+                      <div className="text-[10px]" style={{ color: "var(--ink-3)" }}>
+                        {isStock
+                          ? `${s.qty} units · avg ₹${s.avg}`
+                          : `Govt bond · coupon ${"isBond" in s ? (s as any).coupon : "2.5%"}`}
+                      </div>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <div className="tnum text-[12px] font-bold text-ink">
+                        {formatINR(val, { abbreviate: true })}
+                      </div>
+                      {gain !== null && gPct !== null ? (
+                        <div className="tnum text-[10px] font-semibold" style={{ color: "var(--good)" }}>
+                          +{formatINR(gain, { abbreviate: true })} (+{gPct.toFixed(1)}%)
+                        </div>
+                      ) : (
+                        <div className="text-[10px]" style={{ color: "var(--ink-3)" }}>Sovereign Bond</div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+              {/* PPF */}
+              <div className="flex items-center gap-2.5 py-2">
+                <div
+                  className="w-8 h-8 rounded-[9px] flex items-center justify-center font-bold text-[9px] shrink-0"
+                  style={{ background: "var(--surface-3)", color: "var(--ink-2)" }}
+                >PPF</div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-[12px] font-semibold text-ink">PPF Account</div>
+                  <div className="text-[10px]" style={{ color: "var(--ink-3)" }}>
+                    ₹{pooja.ppfMonthly}/mo · 7.1% p.a.
+                  </div>
+                </div>
+                <div className="text-right shrink-0">
+                  <div className="tnum text-[12px] font-bold text-ink">
+                    {formatINR(pooja.ppfBalance, { abbreviate: true })}
+                  </div>
+                  <div className="text-[10px]" style={{ color: "var(--good)" }}>Tax-free</div>
+                </div>
+              </div>
+            </FSCard>
+          </div>
+
+          {/* ─ Parents ─ */}
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <div
+                className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold shrink-0"
+                style={{ background: "var(--surface-3)", color: "var(--ink-2)" }}
+              >S</div>
+              <span className="text-[12px] font-bold text-ink">Parents</span>
+              <Pill tone="good" size="sm">Dividend focus</Pill>
+              <span className="ml-auto tnum text-[12px] font-bold text-ink">
+                {formatINR(
+                  parents.stocks.reduce((a, s) => a + s.qty * s.ltp, 0),
+                  { abbreviate: true }
+                )}
+              </span>
+            </div>
+            <FSCard tone="white" pad={12}>
+              {parents.stocks.map((s, i, arr) => {
+                const val = s.qty * s.ltp;
+                const gain = (s.ltp - s.avg) * s.qty;
+                const gPct = ((s.ltp - s.avg) / s.avg) * 100;
+                return (
+                  <div
+                    key={s.symbol}
+                    className="flex items-center gap-2.5 py-2"
+                    style={{ borderBottom: i < arr.length - 1 ? "1px solid var(--hairline)" : "none" }}
+                  >
+                    <div
+                      className="w-8 h-8 rounded-[9px] flex items-center justify-center font-bold text-[9px] shrink-0"
+                      style={{ background: "var(--surface-3)", color: "var(--ink-2)" }}
+                    >
+                      {s.symbol.slice(0, 4)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-[12px] font-semibold text-ink">{s.name}</div>
+                      <div className="text-[10px]" style={{ color: "var(--ink-3)" }}>
+                        {s.qty} qty · avg ₹{s.avg.toLocaleString("en-IN")}
+                      </div>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <div className="tnum text-[12px] font-bold text-ink">
+                        {formatINR(val, { abbreviate: true })}
+                      </div>
+                      <div className="tnum text-[10px] font-semibold" style={{ color: "var(--good)" }}>
+                        +{formatINR(gain, { abbreviate: true })} (+{gPct.toFixed(1)}%)
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </FSCard>
+          </div>
+        </div>
+
         {/* ── Monthly cash flow ───────────────────────────── */}
         <div className="px-[18px]">
           <div className="eyebrow mb-3">Monthly cash flow</div>

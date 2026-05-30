@@ -22,6 +22,7 @@ export interface OnboardingAnswers {
   health:        string;
   existingCover: string;
   city:          string;
+  goals?:        string[];     // step 9 — financial goals (optional for back-compat)
 }
 
 type Tone = "good" | "amber" | "bad";
@@ -179,7 +180,7 @@ function coverToAmt(ec: string): number {
 // ─────────────────────────────────────────────────────────────
 
 export function generatePersonaFromAnswers(a: OnboardingAnswers): DynamicPersona {
-  const { age, gender, income, dependents, loans, health, existingCover, city } = a;
+  const { age, gender, income, dependents, loans, health, existingCover, city, goals: selectedGoals = [] } = a;
 
   // Guard
   const safeIncome = Math.max(income, 10_000);
@@ -433,12 +434,12 @@ export function generatePersonaFromAnswers(a: OnboardingAnswers): DynamicPersona
   }
 
   // ════════════════════════════════════════════════════════════
-  // GOALS
+  // GOALS — driven by step-9 selection, with smart defaults
   // ════════════════════════════════════════════════════════════
 
   const goals: PersonaGoal[] = [];
 
-  // Emergency fund (always)
+  // ── Emergency fund (always shown)
   const emergTarget = round1k(safeIncome * 6);
   const emergHave =
     liquidScore < 34  ? round1k(safeIncome * 0.7)
@@ -453,7 +454,7 @@ export function generatePersonaFromAnswers(a: OnboardingAnswers): DynamicPersona
     tone:   emergHave >= emergTarget * 0.75 ? "good"     : emergHave >= emergTarget * 0.35 ? "amber"           : "bad",
   });
 
-  // Retirement (always)
+  // ── Retirement (always shown)
   const retireTarget = round1k(annualIncome * 22);
   const retireHave   = round1k(annualSIP * Math.max(1, yearsWorking - 2) * 0.32);
   goals.push({
@@ -466,8 +467,36 @@ export function generatePersonaFromAnswers(a: OnboardingAnswers): DynamicPersona
     tone:   "good",
   });
 
-  // Child education
-  if (hasChild) {
+  // ── Travel (selected or income-triggered)
+  if (selectedGoals.includes("Travel") || (income > 80_000 && selectedGoals.length === 0)) {
+    const travelTarget = safeIncome < 50_000 ? 150_000 : safeIncome < 100_000 ? 300_000 : 600_000;
+    const travelHave   = round1k(savingsVal * 0.08);
+    goals.push({
+      id: "travel", name: "Travel fund", icon: "✈️",
+      target: travelTarget, have: Math.min(travelHave, travelTarget),
+      by: `Dec ${2026 + (travelHave < travelTarget * 0.5 ? 1 : 0)}`,
+      monthly: round500(safeIncome * 0.04),
+      status: travelHave >= travelTarget * 0.6 ? "On track" : "Building",
+      tone:   travelHave >= travelTarget * 0.6 ? "good"     : "amber",
+    });
+  }
+
+  // ── Buy a car (selected)
+  if (selectedGoals.includes("Buy a car")) {
+    const carTarget = safeIncome < 50_000 ? 500_000 : safeIncome < 100_000 ? 800_000 : 1_500_000;
+    const carHave   = round1k(savingsVal * 0.12);
+    goals.push({
+      id: "car", name: "Buy a car", icon: "🚗",
+      target: carTarget, have: Math.min(carHave, carTarget),
+      by: `${2026 + Math.ceil((carTarget - carHave) / (safeIncome * 0.08 * 12))}`,
+      monthly: round500(safeIncome * 0.08),
+      status: carHave >= carTarget * 0.5 ? "On track" : carHave >= carTarget * 0.2 ? "Building" : "Lagging",
+      tone:   carHave >= carTarget * 0.5 ? "good"     : carHave >= carTarget * 0.2 ? "amber"    : "bad",
+    });
+  }
+
+  // ── Child education (selected or has child)
+  if (selectedGoals.includes("Child education") || hasChild) {
     const eduTarget = 2_500_000;
     const eduHave   = round1k(annualSIP * Math.max(0, yearsWorking - 3) * 0.22);
     goals.push({
@@ -480,12 +509,12 @@ export function generatePersonaFromAnswers(a: OnboardingAnswers): DynamicPersona
     });
   }
 
-  // Home goal (if no large existing loan + has spouse)
-  if (hasSpouse && loans < 500_000) {
+  // ── Own a home (selected + no existing loan) or legacy logic
+  if (selectedGoals.includes("Own a home") ? loans < 3_000_000 : (hasSpouse && loans < 500_000)) {
     const homeTarget = safeIncome < 60_000 ? 4_500_000 : 8_000_000;
     const homeHave   = round1k(savingsVal * 0.35);
     goals.push({
-      id: "house", name: "Dream home", icon: "🏠",
+      id: "house", name: "Own a home", icon: "🏠",
       target: homeTarget, have: homeHave,
       by: "2032",
       monthly: round500(sipPerMonth * 0.20),
@@ -494,15 +523,57 @@ export function generatePersonaFromAnswers(a: OnboardingAnswers): DynamicPersona
     });
   }
 
-  // Parents health fund
-  if (hasParents) {
+  // ── Parents / health buffer
+  if (hasParents || selectedGoals.includes("Health buffer")) {
     goals.push({
-      id: "parents-health", name: "Parents health fund", icon: "🏥",
+      id: "parents-health", name: "Health buffer", icon: "🏥",
       target: 500_000, have: round1k(safeIncome * 1.5),
       by: "Ongoing",
       monthly: round500(safeIncome * 0.05),
       status: "Active",
       tone:   "amber",
+    });
+  }
+
+  // ── Startup fund (selected)
+  if (selectedGoals.includes("Start a business")) {
+    const startupTarget = safeIncome < 60_000 ? 500_000 : safeIncome < 120_000 ? 1_000_000 : 2_000_000;
+    const startupHave   = round1k(savingsVal * 0.06);
+    goals.push({
+      id: "startup", name: "Startup fund", icon: "💡",
+      target: startupTarget, have: Math.min(startupHave, startupTarget),
+      by: `${2026 + 3}`,
+      monthly: round500(safeIncome * 0.07),
+      status: startupHave >= startupTarget * 0.4 ? "On track" : "Building",
+      tone:   startupHave >= startupTarget * 0.4 ? "good"     : "amber",
+    });
+  }
+
+  // ── Marriage fund (selected)
+  if (selectedGoals.includes("Marriage")) {
+    const marriageTarget = safeIncome < 60_000 ? 600_000 : 1_200_000;
+    const marriageHave   = round1k(savingsVal * 0.09);
+    goals.push({
+      id: "marriage", name: "Marriage fund", icon: "💍",
+      target: marriageTarget, have: Math.min(marriageHave, marriageTarget),
+      by: `${2026 + 2}`,
+      monthly: round500(safeIncome * 0.06),
+      status: marriageHave >= marriageTarget * 0.5 ? "On track" : "Building",
+      tone:   marriageHave >= marriageTarget * 0.5 ? "good"     : "amber",
+    });
+  }
+
+  // ── Early retirement (selected)
+  if (selectedGoals.includes("Early retirement")) {
+    const earlyRetTarget = round1k(annualIncome * 18);
+    const earlyRetHave   = round1k(annualSIP * Math.max(1, yearsWorking - 1) * 0.28);
+    goals.push({
+      id: "early-retire", name: "Early retirement", icon: "🏝️",
+      target: earlyRetTarget, have: Math.min(earlyRetHave, earlyRetTarget),
+      by: `${2026 + Math.max(8, 50 - age)}`,
+      monthly: round500(sipPerMonth * 0.35),
+      status: earlyRetHave >= earlyRetTarget * 0.15 ? "On track" : "Building",
+      tone:   earlyRetHave >= earlyRetTarget * 0.15 ? "good"     : "amber",
     });
   }
 

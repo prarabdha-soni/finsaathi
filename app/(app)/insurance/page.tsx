@@ -193,6 +193,72 @@ export default function InsurancePage() {
           ))}
         </FSCard>
 
+        {/* ── Vehicle insurance ─────────────────────── */}
+        <div
+          className="flex items-start gap-3 p-3.5 rounded-[14px]"
+          style={{ background: "var(--tint-amber)", border: "1px solid rgba(217,119,6,0.25)" }}
+        >
+          <AlertTriangle size={16} strokeWidth={2} style={{ color: "var(--caution)", flexShrink: 0, marginTop: 1 }} />
+          <div className="flex-1 min-w-0">
+            <div className="text-[13px] font-semibold text-ink">
+              Car insurance expires in {rahul.vehicle.daysLeft} days
+            </div>
+            <div className="text-[12px] mt-0.5" style={{ color: "var(--ink-3)" }}>
+              {rahul.vehicle.model} · renew before {rahul.vehicle.expiry}
+            </div>
+          </div>
+          <span className="shrink-0 text-[12px] font-bold" style={{ color: "var(--caution)" }}>
+            Renew →
+          </span>
+        </div>
+
+        <FSCard tone="white" pad={16}>
+          <div className="flex items-center justify-between mb-4">
+            <div className="eyebrow">Vehicle insurance</div>
+            <Pill tone="amber" size="sm">Renew in {rahul.vehicle.daysLeft}d</Pill>
+          </div>
+
+          {/* Car summary row */}
+          <div
+            className="flex items-center gap-3 pb-3.5 mb-0"
+            style={{ borderBottom: "1px solid var(--hairline)" }}
+          >
+            <div
+              className="w-11 h-11 rounded-[12px] flex items-center justify-center text-[20px] shrink-0"
+              style={{ background: "var(--surface-3)" }}
+            >🚗</div>
+            <div className="flex-1 min-w-0">
+              <div className="text-[14px] font-bold text-ink">{rahul.vehicle.model}</div>
+              <div className="text-[11px] mt-0.5" style={{ color: "var(--ink-3)" }}>
+                {rahul.vehicle.regNo} · {rahul.vehicle.year}
+              </div>
+            </div>
+            <Pill tone="good" size="sm">{rahul.vehicle.type2}</Pill>
+          </div>
+
+          {/* Details list */}
+          {[
+            { label: "Insurer",        value: rahul.vehicle.insurer,                     alert: false },
+            { label: "IDV",            value: formatINR(rahul.vehicle.idv),               alert: false },
+            { label: "Annual premium", value: formatINR(rahul.vehicle.premium) + "/yr",  alert: false },
+            { label: "Expires",        value: rahul.vehicle.expiry,                       alert: true  },
+          ].map((r, i, arr) => (
+            <div
+              key={r.label}
+              className="flex justify-between items-center py-2.5"
+              style={{ borderBottom: i < arr.length - 1 ? "1px dashed var(--hairline)" : "none" }}
+            >
+              <span className="text-[12px]" style={{ color: "var(--ink-3)" }}>{r.label}</span>
+              <span
+                className="text-[12px] font-bold"
+                style={{ color: r.alert ? "var(--caution)" : "var(--ink)" }}
+              >
+                {r.value}
+              </span>
+            </div>
+          ))}
+        </FSCard>
+
         {/* ── CTA ──────────────────────────────────── */}
         <Link
           href="/insurance/plans"

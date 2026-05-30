@@ -105,6 +105,30 @@ export const rahul = {
     upiMonthly: 38000,
   },
 
+  // Stocks & MF portfolio (breakdown of portfolioValue ₹1.84L)
+  stocks: [
+    { symbol: "RELIANCE",  name: "Reliance Inds",      qty: 8,   avg: 2760, ltp: 2948, exchange: "NSE" },
+    { symbol: "HDFCBANK",  name: "HDFC Bank",           qty: 12,  avg: 1520, ltp: 1682, exchange: "NSE" },
+    { symbol: "TCS",       name: "TCS",                 qty: 3,   avg: 3680, ltp: 3924, exchange: "NSE" },
+    { symbol: "NIFTYBEES", name: "Nifty 50 ETF",        qty: 40,  avg: 238,  ltp: 261,  exchange: "NSE" },
+    { symbol: "PPFAS",     name: "Parag Parikh Flexi",  qty: null, avg: null, ltp: null, mfUnits: 284.5, nav: 82.4, mfValue: 23442, isMF: true },
+    { symbol: "MIRAEMERGE",name: "Mirae Emerging Blue", qty: null, avg: null, ltp: null, mfUnits: 194.2, nav: 120.6, mfValue: 23420, isMF: true },
+  ],
+
+  // Vehicle
+  vehicle: {
+    type: "Car",
+    model: "Maruti Swift VXI",
+    year: 2022,
+    regNo: "RJ14-CX-4821",
+    insurer: "HDFC ERGO",
+    idv: 580000,
+    premium: 8200,
+    expiry: "28 Jun 2026",
+    daysLeft: 29,
+    type2: "Comprehensive",
+  },
+
   // Tax
   epf: 78000,
   ppf: 30000,
@@ -153,6 +177,13 @@ export const pooja = {
   ppfBalance: 22000,
   goldValue: 180000,               // ~40g gold jewellery
   goldLoanCapacity: 230000,        // ₹2.3L on 40g gold
+
+  // Stocks & savings portfolio
+  stocks: [
+    { symbol: "GOLDBEES",  name: "Nippon Gold ETF",     qty: 45,  avg: 54.2, ltp: 62.8, exchange: "NSE" },
+    { symbol: "SGB2026",   name: "Sovereign Gold Bond", qty: null, avg: null, ltp: null, mfValue: 50000, isBond: true, coupon: "2.5%" },
+  ],
+  ppfMonthlyContrib: 500,
 
   // Nominee
   nomineeOn: 2,   // accounts where Pooja is nominee
@@ -219,6 +250,13 @@ export const parents = {
   // Credit
   cibil: 742,
   cibilTier: "Good",
+
+  // Stocks portfolio (conservative / dividend-focused)
+  stocks: [
+    { symbol: "NTPC",   name: "NTPC",  qty: 100, avg: 340, ltp: 381, exchange: "NSE" },
+    { symbol: "ITC",    name: "ITC",   qty: 200, avg: 390, ltp: 441, exchange: "NSE" },
+    { symbol: "SBIN",   name: "SBI",   qty: 30,  avg: 780, ltp: 852, exchange: "NSE" },
+  ],
 
   // Support from Rahul
   monthlySupport: 8000,     // Rahul sends ₹8K/mo
