@@ -84,6 +84,93 @@ export default function HomePage() {
         },
   ];
 
+  // ── Emergency fund values for rec card ───────────────────
+  const emergencyGoal   = goals.find(g => g.id === "emergency");
+  const emergencyHave   = emergencyGoal?.have   ?? 78000;
+  const emergencyTarget = emergencyGoal?.target ?? 400000;
+
+  // ── Personalised product recs (driven by persona) ────────
+  const recs = [
+    ...(termOwned === 0 ? [{
+      id:          "term",
+      category:    "Protect family",
+      emoji:       "🛡️",
+      accentColor: "#dc4c3c",
+      bg:          "#fde8e4",
+      provider:    "HDFC Click2Protect",
+      headline:    `₹1.2Cr for ₹${premium}/mo`,
+      sub:         "Family has ₹0 cover today — most critical gap",
+      cta:         "Get covered",
+      href:        "/insurance/plans",
+      urgent:      true,
+    }] : []),
+    {
+      id:          "niyo",
+      category:    "Travel smarter",
+      emoji:       "✈️",
+      accentColor: "#0d9488",
+      bg:          "rgba(13,148,136,0.08)",
+      provider:    "Niyo Global Card",
+      headline:    "0% forex markup",
+      sub:         "Millennials spend ₹5L+/yr on travel — save on every trip",
+      cta:         "Apply free",
+      href:        "#",
+      urgent:      false,
+    },
+    {
+      id:          "sgb",
+      category:    "Beat gold prices",
+      emoji:       "🥇",
+      accentColor: "#b45309",
+      bg:          "rgba(254,240,138,0.4)",
+      provider:    "Sovereign Gold Bond",
+      headline:    "Gold + 2.5%/yr",
+      sub:         "Tax-free at maturity · no storage risk · govt backed",
+      cta:         "Invest ₹5K+",
+      href:        "#",
+      urgent:      false,
+    },
+    {
+      id:          "nps",
+      category:    "Retire early",
+      emoji:       "🌅",
+      accentColor: "#6366f1",
+      bg:          "rgba(99,102,241,0.08)",
+      provider:    "NPS via HDFC Pension",
+      headline:    "₹7,500 tax saved/yr",
+      sub:         "80CCD(1B) extra ₹50K · retirement is India's #1 priority in 2026",
+      cta:         "Start NPS",
+      href:        "#",
+      urgent:      false,
+    },
+    {
+      id:          "liquid",
+      category:    "Emergency fund",
+      emoji:       "🛟",
+      accentColor: "#16a34a",
+      bg:          "rgba(22,163,74,0.08)",
+      provider:    "Mirae Liquid Fund",
+      headline:    "7.1% on idle cash",
+      sub:         `${abbr(emergencyHave)} saved · ${abbr(emergencyTarget - emergencyHave)} more to 6-month target`,
+      cta:         "Build buffer",
+      href:        "#",
+      urgent:      false,
+    },
+    {
+      id:          "scapia",
+      category:    "Travel rewards",
+      emoji:       "🌍",
+      accentColor: "#0d9488",
+      bg:          "rgba(13,148,136,0.08)",
+      provider:    "Scapia Travel Card",
+      headline:    "10× on flights & stays",
+      sub:         "Free airport lounges · zero forex fee · ₹500Cr valuation",
+      cta:         "Get card",
+      href:        "#",
+      urgent:      false,
+    },
+  ];
+
   return (
     <div className="pb-8" style={{ background: "var(--bg-app)" }}>
 
@@ -142,6 +229,70 @@ export default function HomePage() {
             </div>
           </div>
         </Link>
+
+        {/* ── Saathi picks · personalised products ───────── */}
+        <div>
+          <div className="flex items-baseline justify-between mb-2.5 px-0.5">
+            <span className="text-[11px] font-bold tracking-[0.1em] uppercase" style={{ color: "var(--ink-3)" }}>
+              Saathi picks · for you
+            </span>
+            <span className="text-[11px] font-semibold" style={{ color: "var(--saffron-deep)" }}>
+              {recs.length} matched
+            </span>
+          </div>
+
+          <div className="flex gap-2.5 overflow-x-auto -mx-5 px-5 pb-1 scrollbar-hide snap-x snap-mandatory">
+            {recs.map((rec) => (
+              <Link
+                key={rec.id}
+                href={rec.href}
+                className="shrink-0 snap-start rounded-[16px] overflow-hidden active:scale-[0.98] transition-transform flex flex-col"
+                style={{
+                  width: 152,
+                  border: "1px solid var(--hairline)",
+                  background: "var(--surface)",
+                  boxShadow: "var(--shadow-card)",
+                }}
+              >
+                {/* Coloured accent band */}
+                <div className="flex items-center gap-1.5 px-3 py-2" style={{ background: rec.bg }}>
+                  <span className="text-[15px] leading-none">{rec.emoji}</span>
+                  <span
+                    className="text-[9px] font-extrabold tracking-[0.07em] uppercase leading-tight flex-1"
+                    style={{ color: rec.accentColor }}
+                  >
+                    {rec.category}
+                  </span>
+                  {rec.urgent && (
+                    <span
+                      className="text-[8px] font-extrabold px-1.5 py-0.5 rounded-full leading-none"
+                      style={{ background: "#dc4c3c", color: "#fff8ef" }}
+                    >
+                      Urgent
+                    </span>
+                  )}
+                </div>
+
+                {/* Card body */}
+                <div className="flex flex-col flex-1 px-3 pt-2 pb-3">
+                  <div className="text-[10px]" style={{ color: "var(--ink-3)" }}>{rec.provider}</div>
+                  <div className="text-[13px] font-bold text-ink mt-0.5 leading-tight">{rec.headline}</div>
+                  <div className="text-[10px] mt-1 leading-[1.35]" style={{ color: "var(--ink-3)" }}>
+                    {rec.sub}
+                  </div>
+                  <div className="mt-auto pt-2.5">
+                    <div
+                      className="text-[11px] font-bold py-1.5 rounded-[9px] text-center"
+                      style={{ background: rec.bg, color: rec.accentColor }}
+                    >
+                      {rec.cta} →
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
 
         {/* ── Do this next ─────────────────────────────── */}
         <div>
