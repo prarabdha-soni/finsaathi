@@ -114,7 +114,7 @@ export default function HomePage() {
       headline:    "0% forex markup",
       sub:         "Millennials spend ₹5L+/yr on travel — save on every trip",
       cta:         "Apply free",
-      href:        "#",
+      href:        "/invest/travel-cards",
       urgent:      false,
     },
     {
@@ -140,7 +140,7 @@ export default function HomePage() {
       headline:    "₹7,500 tax saved/yr",
       sub:         "80CCD(1B) extra ₹50K · retirement is India's #1 priority in 2026",
       cta:         "Start NPS",
-      href:        "#",
+      href:        "/invest/nps",
       urgent:      false,
     },
     {
@@ -153,7 +153,7 @@ export default function HomePage() {
       headline:    "7.1% on idle cash",
       sub:         `${abbr(emergencyHave)} saved · ${abbr(emergencyTarget - emergencyHave)} more to 6-month target`,
       cta:         "Build buffer",
-      href:        "#",
+      href:        "/invest/liquid",
       urgent:      false,
     },
     {
@@ -166,7 +166,7 @@ export default function HomePage() {
       headline:    "10× on flights & stays",
       sub:         "Free airport lounges · zero forex fee · ₹500Cr valuation",
       cta:         "Get card",
-      href:        "#",
+      href:        "/invest/travel-cards",
       urgent:      false,
     },
   ];
