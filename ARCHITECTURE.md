@@ -16,6 +16,8 @@ FinSaathi is an AI-powered personal finance co-pilot for Indian consumers. It co
 | AI – Roast | DeepSeek API (`deepseek-chat`) | Portfolio analysis & scoring |
 | AI – Chat | OpenRouter (`mistral-7b:free`) | Saathi conversational AI |
 | Database | MongoDB Atlas | Roast history, user data |
+| Market Data | Yahoo Finance (unofficial) | Live Nifty, Sensex, stocks, Gold, USD-INR |
+| MF Data | MFAPI.in (free, no key) | Daily Indian mutual fund NAVs |
 | Runtime | Node.js 20 (WSL2 / Linux) | API routes via Next.js |
 
 ---

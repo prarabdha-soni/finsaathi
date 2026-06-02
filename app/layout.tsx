@@ -32,7 +32,7 @@ const sora = Sora({
 });
 
 export const metadata: Metadata = {
-  title: "FinSaathi — Your AI finance co-pilot",
+  title: "Gloww — Your AI finance co-pilot",
   description:
     "Honest, personalised financial advice — in Hindi or English. Built for the 400M middle-class Indians no advisor will call back.",
 };

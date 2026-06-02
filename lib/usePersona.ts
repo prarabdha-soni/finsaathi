@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { generatePersonaFromAnswers, type DynamicPersona, type OnboardingAnswers } from "./generatePersona";
 
-export const LS_KEY = "finsaathi:answers";
+export const LS_KEY = "gloww:answers";
 
 export function usePersona(): DynamicPersona | null {
   const [persona, setPersona] = useState<DynamicPersona | null>(null);

@@ -60,13 +60,17 @@ const INITIAL_MESSAGES: ChatMessage[] = [
 ];
 
 interface ChatState {
-  messages: ChatMessage[];
+  messages:       ChatMessage[];
   addUserMessage: (text: string) => void;
-  addBotMessage:  (text: string) => void;
+  /** Appends an empty bot bubble and returns its id — for streaming. */
+  addBotMessage:  (text?: string) => string;
+  /** Patch an existing message's text in-place (used during streaming). */
+  updateMessage:  (id: string, text: string) => void;
 }
 
 export const useChatStore = create<ChatState>((set) => ({
   messages: INITIAL_MESSAGES,
+
   addUserMessage: (text: string) =>
     set((s) => ({
       messages: [
@@ -74,11 +78,20 @@ export const useChatStore = create<ChatState>((set) => ({
         { id: Date.now().toString(), from: "me" as const, text },
       ],
     })),
-  addBotMessage: (text: string) =>
+
+  addBotMessage: (text = "") => {
+    const id = (Date.now() + 1).toString();
     set((s) => ({
       messages: [
         ...s.messages,
-        { id: (Date.now() + 1).toString(), from: "them" as const, text },
+        { id, from: "them" as const, text },
       ],
+    }));
+    return id;
+  },
+
+  updateMessage: (id: string, text: string) =>
+    set((s) => ({
+      messages: s.messages.map((m) => (m.id === id ? { ...m, text } : m)),
     })),
 }));

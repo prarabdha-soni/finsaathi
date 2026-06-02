@@ -71,7 +71,7 @@ Respond with ONLY valid JSON (no markdown, no \`\`\` fences):
   // Persist to MongoDB async — don't block the response
   clientPromise
     .then((client) =>
-      client.db("finsaathi").collection("roasts").insertOne({
+      client.db("gloww").collection("roasts").insertOne({
         holdings,
         score: result.score,
         roast: result.roast,

@@ -237,7 +237,7 @@ export default async function InsurancePlanDetailPage({
 
         <p className="text-center text-[11px] text-muted pb-2">
           You&apos;ll be redirected to {plan.insurer}&apos;s secure portal.
-          FinSaathi does not store payment data.
+          Gloww does not store payment data.
         </p>
       </div>
     </div>

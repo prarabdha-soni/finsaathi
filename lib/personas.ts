@@ -1,4 +1,4 @@
-/** Rahul Sharma — primary persona throughout FinSaathi v1 */
+/** Rahul Sharma — primary persona throughout Gloww v1 */
 export const rahul = {
   name: "Rahul Sharma",
   firstName: "Rahul",

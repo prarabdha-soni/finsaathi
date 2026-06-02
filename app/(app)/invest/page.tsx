@@ -1,4 +1,5 @@
 "use client";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, TrendingDown, TrendingUp } from "lucide-react";
 import { AppHeader } from "@/components/chrome/AppHeader";
@@ -60,6 +61,19 @@ const sparkArea = sparkPath + ` L${PORT_SPARK[PORT_SPARK.length - 1].x} 60 L0 60
 
 export default function InvestPage() {
   const persona = usePersona();
+
+  // Live MF NAVs from MFAPI.in
+  const [navs, setNavs] = useState<Record<string, { nav: number; date: string } | null>>({});
+  useEffect(() => {
+    fetch("/api/mf-nav")
+      .then(r => r.json())
+      .then((data: Array<{ sipId: string; nav: number | null; date: string | null }>) => {
+        const map: Record<string, { nav: number; date: string } | null> = {};
+        data.forEach(d => { map[d.sipId] = d.nav ? { nav: d.nav, date: d.date ?? "" } : null; });
+        setNavs(map);
+      })
+      .catch(() => {/* silent */});
+  }, []);
 
   // Dynamic values — fall back to rahul if no onboarding data
   const portValue     = persona?.portfolioValue     ?? rahul.portfolioValue;
@@ -305,6 +319,21 @@ export default function InvestPage() {
                         {sip.xirr}%
                       </div>
                     </div>
+                    {/* Live NAV from MFAPI.in */}
+                    {navs[sip.id] && (
+                      <div>
+                        <div className="text-[10px] text-muted flex items-center gap-0.5">
+                          <span
+                            className="w-1.5 h-1.5 rounded-full shrink-0"
+                            style={{ background: "var(--good)" }}
+                          />
+                          Live NAV
+                        </div>
+                        <div className="tnum text-[13px] font-bold" style={{ color: "var(--good-deep)" }}>
+                          ₹{navs[sip.id]!.nav.toFixed(2)}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
                 <ChevronRight size={16} style={{ color: "var(--muted)", flexShrink: 0, marginTop: 2 }} />

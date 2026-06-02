@@ -4,14 +4,15 @@ import {
   Bell, Shield, CreditCard, TrendingUp, TrendingDown,
   ChevronRight, Flag, Sparkles,
 } from "lucide-react";
-import { Avatar }     from "@/components/shared/Avatar";
-import { LangSwitch } from "@/components/shared/LangSwitch";
-import { Pill }       from "@/components/shared/Pill";
-import { FSCard }     from "@/components/shared/FSCard";
-import { RingGauge }  from "@/components/finscore/RingGauge";
-import { formatINR }  from "@/lib/format";
-import { usePersona } from "@/lib/usePersona";
-import { rahul } from "@/lib/personas";
+import { Avatar }       from "@/components/shared/Avatar";
+import { LangSwitch }   from "@/components/shared/LangSwitch";
+import { Pill }         from "@/components/shared/Pill";
+import { FSCard }       from "@/components/shared/FSCard";
+import { MarketStrip }  from "@/components/shared/MarketStrip";
+import { RingGauge }    from "@/components/finscore/RingGauge";
+import { formatINR }    from "@/lib/format";
+import { usePersona }   from "@/lib/usePersona";
+import { rahul }        from "@/lib/personas";
 
 function abbr(n: number) { return formatINR(n, { abbreviate: true }); }
 
@@ -217,63 +218,50 @@ export default function HomePage() {
           </div>
         </Link>
 
+        {/* ── Live markets ─────────────────────────────── */}
+        <MarketStrip />
+
         {/* ── Portfolio Roast · AI feature ─────────────── */}
         <Link href="/roast" className="block active:scale-[0.98] transition-transform">
           <div
             className="rounded-[20px] relative overflow-hidden"
             style={{
-              background: "linear-gradient(135deg, #2d1f14 0%, #3d2818 50%, #2a1e16 100%)",
-              border: "1.5px solid rgba(239,68,68,0.18)",
-              boxShadow: "0 4px 24px -8px rgba(239,68,68,0.12)",
+              background: "linear-gradient(135deg, #f5f0ff 0%, #ede8fa 60%, #e8f0fe 100%)",
+              border: "1.5px solid rgba(139,92,246,0.18)",
+              boxShadow: "0 4px 20px -6px rgba(139,92,246,0.14)",
             }}
           >
-            {/* Glow blobs */}
-            <div className="absolute -right-8 -top-8 w-44 h-44 rounded-full pointer-events-none"
-              style={{ background: "radial-gradient(circle, rgba(239,68,68,0.14), transparent 65%)" }} />
-            <div className="absolute -left-4 -bottom-4 w-32 h-32 rounded-full pointer-events-none"
-              style={{ background: "radial-gradient(circle, rgba(251,146,60,0.08), transparent 65%)" }} />
+            {/* Soft glow */}
+            <div className="absolute -right-6 -top-6 w-40 h-40 rounded-full pointer-events-none"
+              style={{ background: "radial-gradient(circle, rgba(139,92,246,0.1), transparent 65%)" }} />
 
             <div className="relative p-5">
               {/* Top row */}
               <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <span
-                    className="text-[10px] font-extrabold tracking-[0.1em] uppercase"
-                    style={{ color: "rgba(252,165,165,0.7)" }}
-                  >
-                    New feature
-                  </span>
-                  <span
-                    className="text-[8px] font-extrabold px-1.5 py-0.5 rounded-full"
-                    style={{ background: "rgba(239,68,68,0.22)", color: "#fca5a5" }}
-                  >
-                    DeepSeek AI
-                  </span>
-                  <span
-                    className="text-[8px] font-extrabold px-1.5 py-0.5 rounded-full"
-                    style={{ background: "rgba(99,102,241,0.22)", color: "#a5b4fc" }}
-                  >
-                    MongoDB
-                  </span>
-                </div>
-                <ChevronRight size={16} strokeWidth={2} style={{ color: "rgba(252,165,165,0.4)" }} />
+                <span
+                  className="text-[10px] font-extrabold tracking-[0.1em] uppercase"
+                  style={{ color: "rgba(109,40,217,0.55)" }}
+                >
+                  AI feature
+                </span>
+                <ChevronRight size={15} strokeWidth={2} style={{ color: "rgba(109,40,217,0.35)" }} />
               </div>
 
-              {/* Fire + headline */}
+              {/* Icon + headline */}
               <div className="flex items-center gap-4">
                 <div
                   className="w-14 h-14 rounded-[16px] flex items-center justify-center shrink-0 text-[28px]"
-                  style={{ background: "rgba(239,68,68,0.14)" }}
+                  style={{ background: "rgba(139,92,246,0.12)" }}
                 >
                   🔥
                 </div>
                 <div>
                   <div
                     className="text-[22px] font-medium leading-[1.15]"
-                    style={{ fontFamily: "var(--font-display)", color: "#fff8ef" }}
+                    style={{ fontFamily: "var(--font-display)", color: "#1e0a3c" }}
                   >
                     Roast my<br />
-                    <em className="italic" style={{ color: "#fca5a5" }}>portfolio</em>
+                    <em className="italic" style={{ color: "#7c3aed" }}>portfolio</em>
                   </div>
                 </div>
               </div>
@@ -281,24 +269,16 @@ export default function HomePage() {
               {/* Description */}
               <p
                 className="text-[12px] mt-3 leading-[1.55]"
-                style={{ color: "rgba(251,231,207,0.55)" }}
+                style={{ color: "rgba(46,16,101,0.55)" }}
               >
                 Enter your holdings. AI judges them ruthlessly, scores your risk, and gives an actionable fix plan.
               </p>
 
-              {/* CTA strip */}
-              <div
-                className="mt-4 flex items-center justify-between pt-3.5"
-                style={{ borderTop: "1px solid rgba(239,68,68,0.15)" }}
-              >
-                <div className="flex items-center gap-3">
-                  {["DeepSeek", "OpenRouter", "MongoDB"].map(t => (
-                    <span key={t} className="text-[10px] font-semibold" style={{ color: "rgba(251,231,207,0.35)" }}>{t}</span>
-                  ))}
-                </div>
+              {/* CTA */}
+              <div className="mt-4">
                 <span
-                  className="inline-flex items-center gap-1.5 px-3.5 h-8 rounded-[10px] text-[12px] font-bold"
-                  style={{ background: "rgba(239,68,68,0.22)", color: "#fca5a5" }}
+                  className="inline-flex items-center gap-1.5 px-4 h-8 rounded-[10px] text-[12px] font-bold"
+                  style={{ background: "rgba(109,40,217,0.1)", color: "#6d28d9" }}
                 >
                   Try it <ChevronRight size={12} strokeWidth={2.5} />
                 </span>

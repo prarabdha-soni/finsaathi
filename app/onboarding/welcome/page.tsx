@@ -18,7 +18,7 @@ export default function WelcomePage() {
       <div className="flex-1 overflow-y-auto px-7 pt-0 pb-4">
         <div className="mt-[60px]">
           <div className="eyebrow" style={{ color: "var(--saffron-deep)" }}>
-            FinSaathi · Your Financial Co-pilot
+            Gloww · Your Financial Co-pilot
           </div>
           <h1
             className="mt-4 leading-[1.05] tracking-[-0.02em]"

@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { Mic, Send, Zap } from "lucide-react";
+import { Mic, Send, Flame } from "lucide-react";
 import { Logo }             from "@/components/shared/Logo";
 import { LangSwitch }       from "@/components/shared/LangSwitch";
 import { ChatBubble, MonthAtAGlanceCard } from "@/components/chat/ChatBubble";
@@ -14,7 +14,7 @@ const CHIPS = [
 ];
 
 export default function SaathiPage() {
-  const { messages, addUserMessage, addBotMessage } = useChatStore();
+  const { messages, addUserMessage, addBotMessage, updateMessage } = useChatStore();
   const [draft, setDraft]        = useState("");
   const [busy, setBusy]          = useState(false);
   const bottomRef                = useRef<HTMLDivElement>(null);
@@ -31,20 +31,52 @@ export default function SaathiPage() {
     setBusy(true);
     addUserMessage(t);
 
+    // Add empty bot bubble immediately — we'll stream tokens into it
+    const botId = addBotMessage("");
+
     try {
       const history = messages.slice(-8).map(m => ({
         role: (m.from === "me" ? "user" : "assistant") as "user" | "assistant",
         content: m.text,
       }));
-      const res  = await fetch("/api/chat", {
+
+      const res = await fetch("/api/chat", {
         method:  "POST",
         headers: { "Content-Type": "application/json" },
         body:    JSON.stringify({ message: t, history }),
       });
-      const data = await res.json();
-      addBotMessage(data.reply ?? "Something went wrong — try again.");
+
+      if (!res.ok || !res.body) throw new Error("stream unavailable");
+
+      const reader  = res.body.getReader();
+      const decoder = new TextDecoder();
+      let accumulated = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        // DeepSeek SSE: multiple "data: {...}\n" lines per chunk
+        const raw   = decoder.decode(value, { stream: true });
+        const lines = raw.split("\n").filter(l => l.startsWith("data: "));
+
+        for (const line of lines) {
+          const payload = line.slice(6).trim();
+          if (payload === "[DONE]") break;
+          try {
+            const json  = JSON.parse(payload);
+            const token = json.choices?.[0]?.delta?.content ?? "";
+            if (token) {
+              accumulated += token;
+              updateMessage(botId, accumulated);
+            }
+          } catch { /* ignore partial JSON */ }
+        }
+      }
+
+      if (!accumulated) updateMessage(botId, "Something went wrong — try again.");
     } catch {
-      addBotMessage("Couldn't reach Saathi right now. Try again in a moment.");
+      updateMessage(botId, "Couldn't reach Saathi right now. Try again in a moment.");
     } finally {
       setBusy(false);
     }
@@ -85,10 +117,10 @@ export default function SaathiPage() {
               </div>
               <span
                 className="inline-flex items-center gap-[3px] px-1.5 py-0.5 rounded-full text-[9px] font-extrabold tracking-[0.05em]"
-                style={{ background: "rgba(99,102,241,0.1)", color: "#6366f1" }}
+                style={{ background: "rgba(239,68,68,0.1)", color: "#dc2626" }}
               >
-                <Zap size={8} strokeWidth={2.5} />
-                OpenRouter
+                <Flame size={8} strokeWidth={2.5} />
+                DeepSeek
               </span>
             </div>
             <div className="text-[11px] text-muted mt-0.5">

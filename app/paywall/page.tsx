@@ -93,7 +93,7 @@ export default function PaywallPage() {
             className="text-[15px] font-bold"
             style={{ fontFamily: "var(--font-display)", color: "#fff8ef" }}
           >
-            FinSaathi Plus
+            Gloww Plus
           </span>
         </div>
       </div>

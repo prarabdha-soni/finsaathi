@@ -1,9 +1,14 @@
-import { NextRequest, NextResponse } from "next/server";
-import { openRouterChat, openRouterStatus, OPENROUTER_MODELS, type LLMMessage } from "@/lib/openrouter";
+/**
+ * POST /api/chat
+ *
+ * Streams a DeepSeek response as Server-Sent Events.
+ * The client reads the stream and appends tokens in real-time.
+ */
 
-const SYSTEM_PROMPT = `You are Saathi, a sharp and friendly Indian personal finance assistant built by FinSaathi.
-You have access to the user's financial profile: income ~₹65K/month, CIBIL 724, home loan EMI ₹24,800,
-SIP in small-cap funds, ₹12K 80C headroom remaining, no term insurance.
+import { NextRequest } from "next/server";
+
+const SYSTEM_PROMPT = `You are Saathi, a sharp and friendly Indian personal finance assistant built by Gloww.
+You have access to the user's financial profile: income ~₹65K/month, CIBIL 724, home loan EMI ₹24,800, SIP in small-cap funds, ₹12K 80C headroom remaining, no term insurance.
 Keep replies under 3 sentences. Be specific with numbers. Use Indian context (NSE, BSE, SEBI, ITR, SIP, ELSS, etc.).
 Never recommend specific stocks. Always suggest speaking to a SEBI-registered advisor for large decisions.`;
 
@@ -14,20 +19,42 @@ export async function POST(req: NextRequest) {
   };
 
   if (!message?.trim()) {
-    return NextResponse.json({ error: "Empty message" }, { status: 400 });
+    return new Response(JSON.stringify({ error: "Empty message" }), { status: 400 });
   }
 
-  const messages: LLMMessage[] = [
+  const messages = [
     { role: "system",    content: SYSTEM_PROMPT },
-    ...(history ?? []).slice(-8), // keep last 8 turns for context
-    { role: "user", content: message },
+    ...(history ?? []).slice(-8),
+    { role: "user",      content: message },
   ];
 
-  try {
-    const reply = await openRouterChat(messages, OPENROUTER_MODELS.default);
-    return NextResponse.json({ reply, provider: "openrouter", mode: openRouterStatus });
-  } catch (e) {
-    console.error("Chat error:", e);
-    return NextResponse.json({ error: "AI unavailable" }, { status: 502 });
+  const deepseekRes = await fetch("https://api.deepseek.com/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type":  "application/json",
+      "Authorization": `Bearer ${process.env.DEEPSEEK_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model:      "deepseek-chat",
+      messages,
+      stream:     true,
+      max_tokens: 280,
+      temperature: 0.7,
+    }),
+  });
+
+  if (!deepseekRes.ok || !deepseekRes.body) {
+    const err = await deepseekRes.text();
+    console.error("DeepSeek chat error:", err);
+    return new Response(JSON.stringify({ error: "AI unavailable" }), { status: 502 });
   }
+
+  // Pass the DeepSeek SSE stream straight through to the browser
+  return new Response(deepseekRes.body, {
+    headers: {
+      "Content-Type":  "text/event-stream; charset=utf-8",
+      "Cache-Control": "no-cache",
+      "Connection":    "keep-alive",
+    },
+  });
 }

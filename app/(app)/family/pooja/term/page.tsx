@@ -195,7 +195,7 @@ export default function PoojaTermPage() {
         </button>
 
         <p className="text-center text-[11px] text-muted pb-2">
-          Redirects to HDFC Life&apos;s secure portal. FinSaathi earns no commission on this recommendation.
+          Redirects to HDFC Life&apos;s secure portal. Gloww earns no commission on this recommendation.
         </p>
       </div>
     </div>

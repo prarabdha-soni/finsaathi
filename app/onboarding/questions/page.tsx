@@ -174,7 +174,7 @@ function QuestionsForm() {
     } else {
       // Persist answers so finscore + home + invest pages can read them
       if (typeof window !== "undefined") {
-        localStorage.setItem("finsaathi:answers", JSON.stringify(ans));
+        localStorage.setItem("gloww:answers", JSON.stringify(ans));
       }
       router.push("/onboarding/finscore");
     }

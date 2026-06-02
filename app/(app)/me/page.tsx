@@ -27,7 +27,7 @@ const MENU_SECTIONS = [
     ],
   },
   {
-    title: "FinSaathi",
+    title: "Gloww",
     items: [
       { icon: Sparkles,  label: "Upgrade to Plus",      sub: "₹199/mo · cancel anytime",  href: "/paywall" },
       { icon: FileText,  label: "My reports",           sub: "Tax summary, FinScore PDF",  href: "#" },

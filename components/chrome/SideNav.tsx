@@ -29,7 +29,7 @@ export function SideNav() {
             className="text-[17px] font-bold text-ink leading-none"
             style={{ fontFamily: "var(--font-display)" }}
           >
-            FinSaathi
+            Gloww
           </div>
           <div className="text-[10px] font-semibold mt-0.5" style={{ color: "var(--ink-3)" }}>
             AI finance co-pilot
@@ -116,9 +116,9 @@ export function SideNav() {
           <span className="flex-1">Ask Saathi</span>
           <span
             className="text-[9px] font-extrabold px-1.5 py-0.5 rounded-full"
-            style={{ background: "rgba(99,102,241,0.1)", color: "#6366f1" }}
+            style={{ background: "rgba(239,68,68,0.1)", color: "#dc2626" }}
           >
-            OpenRouter
+            DeepSeek
           </span>
         </Link>
       </nav>
