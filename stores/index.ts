@@ -59,39 +59,26 @@ const INITIAL_MESSAGES: ChatMessage[] = [
   },
 ];
 
-const MOCK_REPLIES = [
-  "Got it — running this against your profile. One moment…",
-  "Based on your ₹65K income and current 80C usage, here's what I recommend…",
-  "Good question. Your CIBIL dropped 6 points last month because of a hard inquiry from Bajaj Finserv.",
-  "The Nifty volatility is normal. Your SIPs are averaging down — that's actually good for long-term returns.",
-  "I've drafted a dispute letter for the Aug 2024 late payment. Want me to open it?",
-];
-
-let replyIdx = 0;
-
 interface ChatState {
   messages: ChatMessage[];
-  addMessage: (text: string) => void;
+  addUserMessage: (text: string) => void;
+  addBotMessage:  (text: string) => void;
 }
 
 export const useChatStore = create<ChatState>((set) => ({
   messages: INITIAL_MESSAGES,
-  addMessage: (text: string) => {
-    const userMsg: ChatMessage = {
-      id: Date.now().toString(),
-      from: "me",
-      text,
-    };
-    set((s) => ({ messages: [...s.messages, userMsg] }));
-
-    setTimeout(() => {
-      const reply: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        from: "them",
-        text: MOCK_REPLIES[replyIdx % MOCK_REPLIES.length],
-      };
-      replyIdx++;
-      set((s) => ({ messages: [...s.messages, reply] }));
-    }, 650);
-  },
+  addUserMessage: (text: string) =>
+    set((s) => ({
+      messages: [
+        ...s.messages,
+        { id: Date.now().toString(), from: "me" as const, text },
+      ],
+    })),
+  addBotMessage: (text: string) =>
+    set((s) => ({
+      messages: [
+        ...s.messages,
+        { id: (Date.now() + 1).toString(), from: "them" as const, text },
+      ],
+    })),
 }));

@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { Mic, Send } from "lucide-react";
+import { Mic, Send, Zap } from "lucide-react";
 import { Logo }             from "@/components/shared/Logo";
 import { LangSwitch }       from "@/components/shared/LangSwitch";
 import { ChatBubble, MonthAtAGlanceCard } from "@/components/chat/ChatBubble";
@@ -14,25 +14,40 @@ const CHIPS = [
 ];
 
 export default function SaathiPage() {
-  const { messages, addMessage } = useChatStore();
+  const { messages, addUserMessage, addBotMessage } = useChatStore();
   const [draft, setDraft]        = useState("");
   const [busy, setBusy]          = useState(false);
   const bottomRef                = useRef<HTMLDivElement>(null);
   const inputRef                 = useRef<HTMLInputElement>(null);
 
-  /* scroll to newest message */
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const send = (text: string) => {
+  const send = async (text: string) => {
     const t = text.trim();
     if (!t || busy) return;
     setDraft("");
     setBusy(true);
-    addMessage(t);
-    /* reset busy after mock reply lands (~700 ms) */
-    setTimeout(() => setBusy(false), 850);
+    addUserMessage(t);
+
+    try {
+      const history = messages.slice(-8).map(m => ({
+        role: (m.from === "me" ? "user" : "assistant") as "user" | "assistant",
+        content: m.text,
+      }));
+      const res  = await fetch("/api/chat", {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify({ message: t, history }),
+      });
+      const data = await res.json();
+      addBotMessage(data.reply ?? "Something went wrong — try again.");
+    } catch {
+      addBotMessage("Couldn't reach Saathi right now. Try again in a moment.");
+    } finally {
+      setBusy(false);
+    }
   };
 
   const handleKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -61,11 +76,20 @@ export default function SaathiPage() {
             />
           </div>
           <div className="min-w-0">
-            <div
-              className="text-[17px] font-bold text-ink leading-none"
-              style={{ fontFamily: "var(--font-display)" }}
-            >
-              Saathi
+            <div className="flex items-center gap-2">
+              <div
+                className="text-[17px] font-bold text-ink leading-none"
+                style={{ fontFamily: "var(--font-display)" }}
+              >
+                Saathi
+              </div>
+              <span
+                className="inline-flex items-center gap-[3px] px-1.5 py-0.5 rounded-full text-[9px] font-extrabold tracking-[0.05em]"
+                style={{ background: "rgba(99,102,241,0.1)", color: "#6366f1" }}
+              >
+                <Zap size={8} strokeWidth={2.5} />
+                OpenRouter
+              </span>
             </div>
             <div className="text-[11px] text-muted mt-0.5">
               Online · Hindi &amp; English · context aware
